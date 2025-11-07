@@ -1,0 +1,60 @@
+:root {
+    --saffron: #FFA500;
+    --deep-saffron: #FFB300;
+    --light-bg: #FFF8E1;
+    --accent-color: #E65100;
+    --white: #ffffff;
+}
+
+body, #container {
+    background-color: var(--light-bg) !important;
+    color: #333 !important;
+}
+
+#header {
+    background: linear-gradient(90deg, var(--saffron), var(--deep-saffron));
+    color: var(--white);
+    height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+#branding h1, #branding h1 a {
+    color: var(--white) !important;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#content h1 {
+    color: var(--accent-color);
+}
+
+a:link, a:visited {
+    color: var(--accent-color);
+}
+
+a:hover {
+    color: var(--saffron);
+}
+
+button, input[type=submit] {
+    background-color: var(--saffron);
+    border: none;
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover, input[type=submit]:hover {
+    background-color: var(--deep-saffron);
+}
+
+.module caption {
+    background: var(--saffron);
+    color: var(--white);
+    font-weight: 600;
+    text-transform: uppercase;
+}

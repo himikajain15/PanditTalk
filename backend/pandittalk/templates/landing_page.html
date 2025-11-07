@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanditTalk - Coming Soon | Connect with Expert Astrologers</title>
+    <meta name="description" content="PanditTalk - Your trusted platform to connect with expert astrologers. Get personalized horoscopes, kundali readings, and spiritual guidance.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFF9C4 0%, #FFFFFF 50%, #FFF9C4 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: #FFC107;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #212121;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #FFFFFF;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            color: #212121;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero .highlight {
+            color: #FFC107;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #757575;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFC107, #FFB300);
+            color: #212121;
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Services */
+        .services {
+            background: #FFFFFF;
+            padding: 80px 20px;
+            margin: 40px 0;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .services h2 {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 800;
+            color: #212121;
+            margin-bottom: 60px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, #FFF9C4 0%, #FFFFFF 100%);
+            padding: 40px 30px;
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid #FFC107;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(255, 193, 7, 0.25);
+        }
+
+        .service-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+        }
+
+        .service-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 12px;
+        }
+
+        .service-card p {
+            font-size: 15px;
+            color: #757575;
+            line-height: 1.6;
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 20px;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 800;
+            color: #212121;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: #FFC107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px;
+        }
+
+        .feature h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            font-size: 15px;
+            color: #757575;
+            line-height: 1.6;
+        }
+
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, #FFC107, #FFB300);
+            padding: 60px 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .newsletter h2 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+
+        .newsletter p {
+            font-size: 18px;
+            color: #424242;
+            margin-bottom: 30px;
+        }
+
+        .newsletter-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .newsletter-form button {
+            padding: 16px 40px;
+            background: #212121;
+            color: #FFC107;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form button:hover {
+            background: #424242;
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background: #212121;
+            color: #FFFFFF;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 14px;
+            color: #BDBDBD;
+        }
+
+        .social-links {
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #FFC107;
+            color: #212121;
+            border-radius: 50%;
+            line-height: 40px;
+            margin: 0 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #FFD54F;
+            transform: translateY(-4px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .services h2,
+            .features h2 {
+                font-size: 32px;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Pandit<span>Talk</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <div class="coming-soon-badge">🌟 COMING SOON 🌟</div>
+            <h1>Connect with Expert <span class="highlight">Astrologers</span></h1>
+            <p>Your trusted platform for personalized horoscopes, kundali readings, and spiritual guidance from experienced pandits and astrologers.</p>
+        </section>
+
+        <section class="services">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🔮</div>
+                    <h3>Personalized Horoscope</h3>
+                    <p>Get detailed daily, weekly, and monthly horoscope predictions tailored to your zodiac sign.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📿</div>
+                    <h3>Kundali Analysis</h3>
+                    <p>Comprehensive birth chart analysis with AI-powered insights and expert pandit consultations.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💬</div>
+                    <h3>Live Chat & Call</h3>
+                    <p>Connect instantly with verified astrologers through chat or call for immediate guidance.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💍</div>
+                    <h3>Marriage Matching</h3>
+                    <p>Traditional kundali matching for marriage compatibility and auspicious timing.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🌙</div>
+                    <h3>Muhurat Selection</h3>
+                    <h3>Personalized Remedies</h3>
+                    <p>Get customized remedies, gemstone recommendations, and spiritual solutions.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📚</div>
+                    <h3>Vedic Learning</h3>
+                    <p>Access ancient Vedic wisdom, mantras, and spiritual teachings from expert pandits.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why Choose PanditTalk?</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">✅</div>
+                    <h3>Verified Experts</h3>
+                    <p>All pandits and astrologers are thoroughly verified and experienced</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>100% Secure</h3>
+                    <p>Your privacy and data security are our top priorities</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💰</div>
+                    <h3>Affordable Pricing</h3>
+                    <p>Get premium astrology services at competitive prices</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Connect</h3>
+                    <p>Connect with live astrologers anytime, anywhere</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="newsletter">
+            <h2>Get Notified When We Launch!</h2>
+            <p>Be the first to know when PanditTalk goes live. Get exclusive launch offers!</p>
+            <form class="newsletter-form" onsubmit="return false;">
+                <input type="email" placeholder="Enter your email address" required>
+                <button type="submit" onclick="alert('Thank you! We will notify you when we launch.')">Notify Me</button>
+            </form>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 PanditTalk. All rights reserved.</p>
+            <p>Contact: support@pandittalk.com</p>
+            <div class="social-links">
+                <a href="#" title="Facebook">f</a>
+                <a href="#" title="Twitter">𝕏</a>
+                <a href="#" title="Instagram">📷</a>
+                <a href="#" title="YouTube">▶</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+
