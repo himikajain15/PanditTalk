@@ -997,12 +997,60 @@ body {
 @media (max-width: 900px) {
     .pandit-registration-header {
         padding: 40px 20px 20px;
+        text-align: center;
     }
     .pandit-registration-main {
         padding: 0 20px 40px;
     }
     .pandit-registration-form-card {
         padding: 24px;
+    }
+
+    .pandit-registration-header h1 {
+        font-size: 28px;
+    }
+
+    .header-description {
+        font-size: 14px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .header-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pandit-form-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+    .pandit-registration-form-card {
+        padding: 20px;
+    }
+
+    .pandit-registration-header h1 {
+        font-size: 24px;
+        line-height: 1.2;
+    }
+
+    .pandit-form-header h2 {
+        font-size: 22px;
+    }
+
+    .form-section h3 {
+        font-size: 18px;
+    }
+
+    .header-actions .btn-secondary {
+        font-size: 14px;
+        padding: 12px;
     }
 }
 
