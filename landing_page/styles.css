@@ -620,6 +620,8 @@ body {
 
 #panditRegistrationForm {
     padding: 30px;
+    background: var(--white);
+    border-radius: 0 0 24px 24px;
 }
 
 .form-section {
@@ -670,12 +672,18 @@ body {
 .form-group input,
 .form-group select,
 .form-group textarea {
+    box-sizing: border-box;
+    width: 100%;
     padding: 14px 16px;
     border: 1px solid #dcdcdc;
     border-radius: 12px;
     font-size: 15px;
     font-family: 'Poppins', sans-serif;
+    background: #ffffff;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .form-group input:focus,
@@ -962,18 +970,9 @@ body {
 }
 
 @media (max-width: 900px) {
-    .pandit-registration-page {
-        background: var(--white);
-    }
-
-    .pandit-registration-gradient {
-        display: none;
-    }
-
     .pandit-registration-header {
         padding: 40px 0 12px;
         text-align: center;
-        background: var(--white);
     }
     .pandit-registration-main {
         padding: 0 0 32px;
