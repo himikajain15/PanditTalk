@@ -995,19 +995,33 @@ body {
 }
 
 @media (max-width: 900px) {
+    .pandit-registration-page {
+        background: var(--white);
+    }
+
+    .pandit-registration-gradient {
+        display: none;
+    }
+
     .pandit-registration-header {
-        padding: 40px 20px 20px;
+        padding: 36px 16px 12px;
         text-align: center;
+        background: var(--white);
     }
     .pandit-registration-main {
-        padding: 0 20px 40px;
+        padding: 0 16px 32px;
+        gap: 16px;
     }
     .pandit-registration-form-card {
-        padding: 24px;
+        padding: 22px;
+        box-shadow: none;
+        border: 1px solid #f1f1f1;
+        border-radius: 16px;
     }
 
     .pandit-registration-header h1 {
-        font-size: 28px;
+        font-size: 26px;
+        line-height: 1.25;
     }
 
     .header-description {
@@ -1022,30 +1036,39 @@ body {
     .header-actions .btn-secondary {
         width: 100%;
         justify-content: center;
+        border-radius: 10px;
     }
 
     .pandit-form-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
     }
 }
 
 @media (max-width: 600px) {
     .pandit-registration-form-card {
-        padding: 20px;
+        padding: 18px;
+        border-radius: 12px;
     }
 
     .pandit-registration-header h1 {
-        font-size: 24px;
+        font-size: 22px;
         line-height: 1.2;
     }
 
     .pandit-form-header h2 {
-        font-size: 22px;
+        font-size: 20px;
+    }
+
+    .form-section {
+        padding: 16px 12px;
+        border-radius: 12px;
+        border: 1px solid #f3f3f3;
     }
 
     .form-section h3 {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .header-actions .btn-secondary {
