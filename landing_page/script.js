@@ -1,4 +1,55 @@
-// Rotating Horoscope Icons (Zodiac & Dharma Chakra)
+// ===========================
+// BACKGROUND MUSIC (AUTO-PLAY)
+// ===========================
+
+window.addEventListener('load', function() {
+    const bgMusic = document.getElementById('bgMusic');
+    
+    if (!bgMusic) return;
+    
+    // Set to 15% volume (very subtle background ambiance)
+    bgMusic.volume = 0.15;
+    
+    function playMusic() {
+        bgMusic.play().catch(e => {
+            // Silently catch autoplay errors
+        });
+    }
+    
+    // Aggressive auto-play attempts
+    playMusic();
+    setTimeout(playMusic, 100);
+    setTimeout(playMusic, 300);
+    setTimeout(playMusic, 500);
+    setTimeout(playMusic, 1000);
+    setTimeout(playMusic, 2000);
+    
+    // Play on ANY interaction
+    let started = false;
+    function tryPlay() {
+        if (!started) {
+            playMusic();
+            started = true;
+        }
+    }
+    
+    document.addEventListener('click', tryPlay);
+    document.addEventListener('scroll', tryPlay);
+    document.addEventListener('mousemove', tryPlay, { once: true });
+    document.addEventListener('touchstart', tryPlay);
+    document.addEventListener('keydown', tryPlay);
+    
+    // Play when page becomes visible
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            playMusic();
+        }
+    });
+});
+
+// ===========================
+// ROTATING ICONS
+// ===========================
 const icons = [
     // Sudarshan Chakra / Dharma Wheel
     `<svg width="80" height="80" viewBox="0 0 100 100" fill="#FFC107">
@@ -62,31 +113,38 @@ setInterval(rotateIcon, 2000);
 rotateIcon(); // Initial icon
 
 // Countdown Timer
-const launchDate = new Date('2025-02-15T00:00:00').getTime();
+const countdownWrapper = document.getElementById('countdown');
+const daysEl = document.getElementById('days');
+const hoursEl = document.getElementById('hours');
+const minutesEl = document.getElementById('minutes');
+const secondsEl = document.getElementById('seconds');
 
-function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = launchDate - now;
+if (countdownWrapper && daysEl && hoursEl && minutesEl && secondsEl) {
+    const launchDate = new Date('2025-02-15T00:00:00').getTime();
 
-    if (distance < 0) {
-        document.getElementById('countdown').innerHTML = '<p style="font-size: 24px; font-weight: 600; color: var(--primary-yellow);">We\'re Live! 🎉</p>';
-        return;
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = launchDate - now;
+
+        if (distance < 0) {
+            countdownWrapper.innerHTML = '<p style="font-size: 24px; font-weight: 600; color: var(--primary-yellow);">We\'re Live! 🎉</p>';
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        secondsEl.textContent = String(seconds).padStart(2, '0');
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    document.getElementById('days').textContent = String(days).padStart(2, '0');
-    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
 }
-
-// Update countdown every second
-setInterval(updateCountdown, 1000);
-updateCountdown();
 
 // Email Notification
 function notifyMe() {
@@ -117,11 +175,14 @@ function isValidEmail(email) {
 }
 
 // Allow Enter key to submit
-document.getElementById('email').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        notifyMe();
-    }
-});
+const notifyEmailInput = document.getElementById('email');
+if (notifyEmailInput) {
+    notifyEmailInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            notifyMe();
+        }
+    });
+}
 
 // Smooth scroll animation for links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -292,9 +353,206 @@ function showContact(e) {
 // Close modal when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('modal');
+    const panditModal = document.getElementById('panditModal');
+    
     if (event.target == modal) {
         closeModal();
     }
+    if (event.target == panditModal) {
+        closePanditModal();
+    }
+}
+
+// ===========================
+// PANDIT REGISTRATION
+// ===========================
+
+function openPanditRegistration() {
+    window.location.href = 'pandit_registration.html';
+}
+
+function closePanditModal() {
+    const panditModal = document.getElementById('panditModal');
+    if (panditModal) {
+        panditModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    const form = document.getElementById('panditRegistrationForm');
+    if (form) {
+        form.reset();
+    }
+    hideFormMessage();
+}
+
+function showFormMessage(message, type) {
+    const messageDiv = document.getElementById('formMessage');
+    if (!messageDiv) return;
+    messageDiv.textContent = message;
+    messageDiv.className = `form-message ${type}`;
+}
+
+function hideFormMessage() {
+    const messageDiv = document.getElementById('formMessage');
+    if (!messageDiv) return;
+    messageDiv.className = 'form-message';
+    messageDiv.textContent = '';
+}
+
+async function submitPanditRegistration(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Get all checkbox values
+    const availability = Array.from(form.querySelectorAll('input[name="availability"]:checked'))
+        .map(cb => cb.value);
+    const workingDays = Array.from(form.querySelectorAll('input[name="working_days"]:checked'))
+        .map(cb => cb.value);
+    const technicalAccess = Array.from(form.querySelectorAll('input[name="technical_access"]:checked'))
+        .map(cb => cb.value);
+    
+    // Get file uploads
+    const idProofFile = document.getElementById('panditIdProof').files[0];
+    const photoFile = document.getElementById('panditPhoto').files[0];
+    
+    // Validation
+    if (availability.length === 0) {
+        showFormMessage('Please select at least one availability slot', 'error');
+        return;
+    }
+    
+    if (workingDays.length === 0) {
+        showFormMessage('Please select at least one working day', 'error');
+        return;
+    }
+    
+    if (technicalAccess.length === 0) {
+        showFormMessage('Please confirm your technical access requirements', 'error');
+        return;
+    }
+    
+    // Validate file uploads
+    if (!idProofFile) {
+        showFormMessage('Please upload your Government ID proof', 'error');
+        return;
+    }
+    
+    if (!photoFile) {
+        showFormMessage('Please upload your recent photo', 'error');
+        return;
+    }
+    
+    // Validate file sizes (5MB max)
+    if (idProofFile.size > 5 * 1024 * 1024) {
+        showFormMessage('ID proof file size must be less than 5MB', 'error');
+        return;
+    }
+    
+    if (photoFile.size > 5 * 1024 * 1024) {
+        showFormMessage('Photo file size must be less than 5MB', 'error');
+        return;
+    }
+    
+    // Convert files to base64 for submission
+    const idProofBase64 = await fileToBase64(idProofFile);
+    const photoBase64 = await fileToBase64(photoFile);
+    
+    // Build comprehensive data object
+    const data = {
+        // Personal Information
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        dob: formData.get('dob'),
+        gender: formData.get('gender'),
+        state: formData.get('state'),
+        address: formData.get('address'),
+        
+        // Professional Details
+        specialization: formData.get('specialization'),
+        other_services: formData.get('other_services') || '',
+        experience: parseInt(formData.get('experience')),
+        education: formData.get('education'),
+        languages: formData.get('languages'),
+        qualifications: formData.get('qualifications') || '',
+        
+        // Availability
+        working_days: workingDays.join(', '),
+        availability: availability.join(', '),
+        weekly_hours: formData.get('weekly_hours'),
+        
+        // Bank Details
+        account_name: formData.get('account_name'),
+        account_number: formData.get('account_number'),
+        ifsc_code: formData.get('ifsc_code'),
+        bank_name: formData.get('bank_name'),
+        pan_card: formData.get('pan_card'),
+        
+        // About
+        bio: formData.get('bio'),
+        achievements: formData.get('achievements') || '',
+        
+        // File uploads
+        id_proof: idProofBase64,
+        id_proof_filename: idProofFile.name,
+        photo: photoBase64,
+        photo_filename: photoFile.name,
+        
+        // Technical & Other
+        technical_access: technicalAccess.join(', '),
+        how_heard: formData.get('how_heard'),
+        comments: formData.get('comments') || '',
+        
+        // Metadata
+        registration_date: new Date().toISOString(),
+        registration_source: 'Landing Page',
+    };
+    
+    showFormMessage('⏳ Submitting your registration...', 'loading');
+    
+    try {
+        // Send to backend API
+        const response = await fetch('http://localhost:8000/api/pandit/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showFormMessage('✅ Registration successful. Once we verify your profile we will get back to you.', 'success');
+            
+            // Reset form after 4 seconds
+            setTimeout(() => {
+                if (document.getElementById('panditModal')) {
+                    closePanditModal();
+                } else {
+                    form.reset();
+                    hideFormMessage();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, 4000);
+        } else {
+            showFormMessage(`❌ ${result.error || 'Registration failed. Please try again.'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        showFormMessage('❌ Unable to submit. Please check your connection and try again.', 'error');
+    }
+}
+
+// Helper function to convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 }
 
 
