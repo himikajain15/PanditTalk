@@ -669,7 +669,7 @@ body {
     margin-bottom: 8px;
 }
 
-.form-group input,
+.form-group input:not([type="checkbox"]):not([type="file"]),
 .form-group select,
 .form-group textarea {
     box-sizing: border-box;
@@ -725,12 +725,26 @@ body {
     gap: 10px;
     font-size: 14px;
     cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+
+.checkbox-group label:hover {
+    background-color: rgba(255, 193, 7, 0.1);
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
     cursor: pointer;
+    margin: 0;
+    -webkit-appearance: checkbox;
+    appearance: checkbox;
+    accent-color: var(--primary-yellow);
 }
 
 .checkbox-label {
