@@ -36,6 +36,10 @@ class _PanditListScreenState extends State<PanditListScreen> {
       appBar: AppBar(
         title: Text("Available Pandits"),
         backgroundColor: AppTheme.gold,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.sync),

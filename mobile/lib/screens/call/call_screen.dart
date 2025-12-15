@@ -35,7 +35,11 @@ class _CallScreenState extends State<CallScreen> {
       appBar: AppBar(
         title: Text('Call a Pandit'),
         backgroundColor: AppTheme.primaryYellow,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: AppTheme.primaryYellow))

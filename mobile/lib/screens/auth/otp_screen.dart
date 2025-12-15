@@ -30,10 +30,14 @@ class _OtpScreenState extends State<OtpScreen> {
     final res = await auth.verifyOtp(widget.phone, otp);
     setState(() => _loading = false);
 
-    if (res['ok'] == true) {
+    if (res['ok'] == true && res.containsKey('user')) {
       // Update user provider with new user data
       final userProv = Provider.of<UserProvider>(context, listen: false);
       await userProv.updateUserAfterOtp();
+      
+      // Check if the mounted property is true before navigating
+      if (!mounted) return;
+      
       // navigate to home
       Navigator.pushReplacementNamed(context, '/home');
     } else {
@@ -45,7 +49,14 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     final saffron = AppTheme.saffron;
     return Scaffold(
-      appBar: AppBar(title: const Text("Verify OTP"), backgroundColor: saffron),
+      appBar: AppBar(
+        title: const Text("Verify OTP"),
+        backgroundColor: saffron,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

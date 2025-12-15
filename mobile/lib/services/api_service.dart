@@ -2,20 +2,35 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'dart:io';
+import '../utils/constants.dart';
 
 class ApiService {
   // Auto-detect base URL based on platform
-  // For Android emulator use 10.0.2.2, for iOS simulator use localhost, for web use localhost
+  // Priority: Use Constants.baseUrl if it's been updated by batch script (for physical devices)
+  // Otherwise auto-detect for emulator/web
   static String get baseUrl {
+    // Check if Constants.baseUrl has been updated (not the default emulator IP)
+    // This means the batch script has set it for a physical device
+    if (!kIsWeb && Constants.baseUrl != 'http://10.0.2.2:8000' && Constants.baseUrl != 'http://10.10.8.27:8000') {
+      final url = Constants.baseUrl.replaceAll('/api', ''); // Remove /api if present
+      debugPrint('🌐 ApiService.baseUrl: $url (from Constants - physical device)');
+      return url;
+    }
+    
+    // Auto-detect for web/emulator
+    String url;
     if (kIsWeb) {
-      return 'http://localhost:8000';
+      url = 'http://localhost:8000';
     } else if (Platform.isAndroid) {
-      // Android emulator uses special IP to access host machine
-      return 'http://10.0.2.2:8000';
+      // Check if running on emulator (10.0.2.2) or physical device
+      // For physical devices, batch script updates Constants.baseUrl
+      url = 'http://10.0.2.2:8000'; // Default for emulator
     } else {
       // iOS simulator or physical device
-      return 'http://localhost:8000'; // Change to your actual server IP for physical devices
+      url = 'http://localhost:8000';
     }
+    debugPrint('🌐 ApiService.baseUrl: $url (kIsWeb: $kIsWeb, auto-detected)');
+    return url;
   }
 
   String get _baseUrl => baseUrl;

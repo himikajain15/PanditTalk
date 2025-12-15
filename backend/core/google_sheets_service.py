@@ -153,3 +153,71 @@ class GoogleSheetsService:
         """Check if Google Sheets integration is available"""
         return self.client is not None and bool(self.sheet_id)
 
+
+def append_to_google_sheet(sheet_name: str, data: List):
+    """
+    Append a row of data to Google Sheets
+    
+    Args:
+        sheet_name: Name of the worksheet (e.g., 'Pandit Registrations')
+        data: List of values to append as a new row
+    """
+    if not GSPREAD_AVAILABLE:
+        logger.warning("gspread not available. Skipping Google Sheets append.")
+        return False
+    
+    try:
+        # Initialize service
+        credentials_json = getattr(settings, 'GOOGLE_CREDENTIALS_JSON', None) or os.getenv('GOOGLE_CREDENTIALS_JSON', '')
+        sheet_id = getattr(settings, 'GOOGLE_SHEET_ID', None) or os.getenv('GOOGLE_SHEET_ID', '')
+        
+        if not credentials_json or not sheet_id:
+            logger.warning("Google Sheets credentials not configured. Skipping.")
+            return False
+        
+        # Parse credentials
+        import json
+        if os.path.exists(credentials_json):
+            with open(credentials_json, 'r') as f:
+                creds_dict = json.load(f)
+        else:
+            creds_dict = json.loads(credentials_json)
+        
+        # Extract sheet ID from URL if needed
+        if '/spreadsheets/d/' in sheet_id:
+            sheet_id = sheet_id.split('/spreadsheets/d/')[1].split('/')[0]
+        
+        # Authorize and open sheet
+        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        client = gspread.authorize(creds)
+        
+        spreadsheet = client.open_by_key(sheet_id)
+        
+        # Try to find or create worksheet
+        try:
+            worksheet = spreadsheet.worksheet(sheet_name)
+        except gspread.exceptions.WorksheetNotFound:
+            # Create new worksheet with comprehensive headers
+            worksheet = spreadsheet.add_worksheet(title=sheet_name, rows=1000, cols=35)
+            headers = [
+                'Registration Date', 'Name', 'Phone', 'Email', 'DOB', 'Age', 'Gender',
+                'State', 'Address', 'Main Specialization', 'Other Services',
+                'Experience (Years)', 'Education', 'Languages', 'Certifications',
+                'Working Days', 'Working Hours', 'Weekly Hours',
+                'Account Holder Name', 'Account Number', 'IFSC Code', 'Bank Name', 'PAN Card',
+                'Bio', 'Achievements', 'ID Proof File', 'Photo File',
+                'Technical Access', 'How They Heard', 'Comments', 
+                'Status', 'User ID', 'Source'
+            ]
+            worksheet.append_row(headers)
+        
+        # Append data
+        worksheet.append_row(data)
+        logger.info(f"Successfully appended data to Google Sheet '{sheet_name}'")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error appending to Google Sheets: {str(e)}")
+        return False
+

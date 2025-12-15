@@ -1,146 +1,210 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/user_provider.dart';
 import '../utils/theme.dart';
-import '../screens/profile/edit_profile_screen.dart';
-import '../screens/chat/chat_list_screen.dart';
-import '../screens/profile/rate_us_screen.dart';
-import '../screens/profile/help_support_screen.dart';
-import '../screens/services/daily_horoscope_screen.dart';
-import '../screens/services/free_kundli_screen.dart';
-import '../screens/services/kundli_matching_screen.dart';
-import '../screens/services/astrology_blog_screen.dart';
+import '../screens/features/book_pooja_screen.dart';
+import '../screens/features/support_chat_screen.dart';
+import '../screens/features/wallet_screen.dart';
+import '../screens/features/gift_card_screen.dart';
+import '../screens/features/order_history_screen.dart';
+import '../screens/features/astro_remedy_screen.dart';
+import '../screens/features/blog_screen.dart';
+import '../screens/features/chat_astrologers_screen.dart';
+import '../screens/features/following_screen.dart';
+import '../screens/features/free_services_screen.dart';
+import '../screens/features/settings_screen.dart';
 
 class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).user;
-    
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          // User Header
+          // User Profile Section
           Container(
-            padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
-            color: AppTheme.white,
-            child: Row(
+            color: AppTheme.primaryYellow,
+            padding: const EdgeInsets.only(top: 48, bottom: 24, left: 16, right: 16),
+            child: Column(
               children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundColor: AppTheme.primaryYellow,
-                  child: Text(
-                    user?.username?[0].toUpperCase() ?? 'U',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.black),
-                  ),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 32,
+                      backgroundImage: NetworkImage(
+                        'https://via.placeholder.com/150',
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            user?.username ?? 'User',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          Row(
+                            children: [
+                              const Text(
+                                'Himika',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.black,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: Colors.grey[700],
+                              ),
+                            ],
                           ),
-                          SizedBox(width: 8),
-                          InkWell(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen())),
-                            child: Icon(Icons.edit, size: 16, color: AppTheme.primaryYellow),
+                          const SizedBox(height: 4),
+                          const Text(
+                            '+91-9001096888',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.black,
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        user?.phone ?? user?.email ?? '',
-                        style: TextStyle(fontSize: 13, color: AppTheme.mediumGray),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.close, color: AppTheme.black),
-                  onPressed: () => Navigator.pop(context),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: AppTheme.black),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-           // Menu Items
-           _buildMenuItem(Icons.home, 'Home', () => Navigator.pop(context)),
-           _buildMenuItemWithBadge(Icons.card_giftcard, 'Book a Pooja', 'New', () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Pooja booking coming soon!')));
-           }, Colors.red),
-           _buildMenuItem(Icons.support_agent, 'Customer Support Chat', () {
-             Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (_) => HelpSupportScreen()));
-           }),
-           _buildMenuItem(Icons.account_balance_wallet, 'Wallet Transactions', () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Wallet transactions coming soon!')));
-           }),
-           _buildMenuItem(Icons.card_giftcard, 'Redeem Gift Card', () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gift card redemption coming soon!')));
-           }),
-           _buildMenuItem(Icons.history, 'Order History', () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Order history coming soon!')));
-           }),
-           _buildMenuItem(Icons.shopping_bag, 'AstroRemedy', () {
-             Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (_) => DailyHoroscopeScreen()));
-           }),
-           _buildMenuItem(Icons.article, 'Astrology Blog', () {
-             Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (_) => AstrologyBlogScreen()));
-           }),
-           _buildMenuItem(Icons.chat_bubble, 'Chat with Astrologers', () {
-             Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (_) => ChatListScreen()));
-           }),
-           _buildMenuItem(Icons.person_add, 'My Following', () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Following list coming soon!')));
-           }),
-           _buildMenuItem(Icons.card_membership, 'Free Services', () {
-             Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (_) => FreeKundliScreen()));
-           }),
-           _buildMenuItem(Icons.settings, 'Settings', () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Settings coming soon!')));
-           }),
+          // Menu Items
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildMenuItem(
+                  context,
+                  Icons.home,
+                  'Home',
+                  () => Navigator.pop(context),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.light,
+                  'Book a Pooja',
+                  () => _navigate(context, const BookPoojaScreen()),
+                  showNew: true,
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.headset_mic,
+                  'Customer Support Chat',
+                  () => _navigate(context, const SupportChatScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.account_balance_wallet,
+                  'Wallet Transactions',
+                  () => _navigate(context, const WalletScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.card_giftcard,
+                  'Redeem Gift Card',
+                  () => _navigate(context, const GiftCardScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.history,
+                  'Order History',
+                  () => _navigate(context, const OrderHistoryScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.shopping_bag,
+                  'AstroRemedy',
+                  () => _navigate(context, const AstroRemedyScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.menu_book,
+                  'Astrology Blog',
+                  () => _navigate(context, const BlogScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.chat_bubble,
+                  'Chat with Astrologers',
+                  () => _navigate(context, const ChatAstrologersScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.favorite,
+                  'My Following',
+                  () => _navigate(context, const FollowingScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.card_giftcard_outlined,
+                  'Free Services',
+                  () => _navigate(context, const FreeServicesScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.settings,
+                  'Settings',
+                  () => _navigate(context, const SettingsScreen()),
+                ),
+              ],
+            ),
+          ),
 
-          Divider(height: 32, thickness: 1),
-
-          // App Availability
-          Padding(
-            padding: EdgeInsets.all(20),
+          // Also Available On Section
+          Container(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Also available on',
-                  style: TextStyle(fontSize: 13, color: AppTheme.mediumGray),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildSocialIcon(Icons.apple),
-                    _buildSocialIcon(Icons.language),
-                    _buildSocialIcon(Icons.play_arrow),
-                    _buildSocialIcon(Icons.facebook),
-                    _buildSocialIcon(Icons.camera_alt),
+                    _buildSocialIcon(Icons.apple, Colors.black),
+                    _buildSocialIcon(Icons.language, Colors.green),
+                    _buildSocialIcon(Icons.play_arrow, Colors.red),
+                    _buildSocialIcon(Icons.facebook, Colors.blue),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.purple, Colors.orange],
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Icon(Icons.camera_alt,
+                          size: 18, color: Colors.white),
+                    ),
+                    _buildSocialIcon(Icons.business, Colors.blue[900]!),
                   ],
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Version 1.1.0',
-                  style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w600),
+                const SizedBox(height: 12),
+                const Text(
+                  'Version 1.1.402',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.green,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -150,51 +214,67 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildMenuItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    VoidCallback onTap, {
+    bool showNew = false,
+  }) {
     return ListTile(
-      leading: Icon(icon, color: AppTheme.mediumGray, size: 22),
-      title: Text(title, style: TextStyle(fontSize: 15)),
-      onTap: onTap,
-      dense: true,
-    );
-  }
-
-  Widget _buildMenuItemWithBadge(IconData icon, String title, String badge, VoidCallback onTap, Color badgeColor) {
-    return ListTile(
-      leading: Icon(icon, color: AppTheme.mediumGray, size: 22),
+      leading: Icon(icon, color: AppTheme.primaryYellow, size: 24),
       title: Row(
         children: [
-          Text(title, style: TextStyle(fontSize: 15)),
-          SizedBox(width: 8),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: badgeColor,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              badge,
-              style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              color: AppTheme.black,
             ),
           ),
+          if (showNew) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'New',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
       onTap: onTap,
-      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
     );
   }
 
-  Widget _buildSocialIcon(IconData icon) {
+  Widget _buildSocialIcon(IconData icon, Color color) {
     return Container(
-      margin: EdgeInsets.only(right: 12),
       width: 32,
       height: 32,
+      margin: const EdgeInsets.only(right: 8),
       decoration: BoxDecoration(
-        color: AppTheme.lightGray,
-        shape: BoxShape.circle,
+        color: color,
+        borderRadius: BorderRadius.circular(6),
       ),
-      child: Icon(icon, size: 18, color: AppTheme.mediumGray),
+      child: Icon(icon, size: 18, color: Colors.white),
+    );
+  }
+
+  void _navigate(BuildContext context, Widget screen) {
+    Navigator.pop(context); // Close drawer
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => screen),
     );
   }
 }
-

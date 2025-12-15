@@ -8,6 +8,7 @@ import 'package:web_socket_channel/status.dart' as status;
 import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/theme.dart';
+import '../../services/api_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final int threadId; // existing ChatThread id on backend
@@ -68,10 +69,8 @@ class _ChatScreenState extends State<ChatScreen> {
   // Helper to determine base API host for ws connection
   String ApiBaseForWs() {
     // Match ApiService base; use same host as API
-    // Constants.baseUrl is like "http://10.0.2.2:8000"
-    // We parse that to create ws URL above
-    return Uri.parse('${Uri.parse('http://10.0.2.2:8000')}').toString(); // default for local emu
-    // NOTE: replace above with actual Constants.baseUrl import if accessible here
+    // ApiService automatically detects the correct URL for web/Android/iOS
+    return ApiService.baseUrl;
   }
 
   void _handleIncoming(dynamic raw) {

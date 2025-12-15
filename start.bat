@@ -1,41 +1,70 @@
 @echo off
-title PanditTalk - Starting Servers
-color 0A
+title PanditTalk - Starting...
 
 echo.
 echo ========================================
-echo    🚀 Starting PanditTalk Application
+echo      STARTING PANDITTALK SYSTEM
 echo ========================================
 echo.
 
-:: Get the current directory (should be C:\Pandittalk)
-cd /d "%~dp0"
+REM Navigate to backend
+cd /d "%~dp0backend"
 
-:: Start Backend Server (Django) in a new window
-echo [1/2] Starting Backend Server (Django)...
-start "PanditTalk Backend Server" cmd /k "cd /d %~dp0backend && venv\Scripts\activate && echo Installing dependencies if needed... && pip install -q -r requirements.txt && echo Backend Server Starting... && python manage.py runserver 127.0.0.1:8000"
+REM Create virtual environment if it doesn't exist
+if not exist venv (
+    echo [1/7] Creating virtual environment...
+    python -m venv venv
+) else (
+    echo [1/7] Virtual environment exists
+)
 
-:: Wait a bit for backend to initialize
-timeout /t 4 /nobreak >nul
+REM Activate virtual environment
+echo [2/7] Activating virtual environment...
+call venv\Scripts\activate.bat
 
-:: Start Frontend (Flutter Web) in a new window
-echo [2/2] Starting Frontend (Flutter Web)...
-start "PanditTalk Frontend Server" cmd /k "cd /d %~dp0mobile && echo Frontend Starting... && flutter run -d chrome"
+REM Install dependencies
+echo [3/7] Installing dependencies...
+pip install -q -r requirements.txt
+
+REM Run migrations
+echo [4/7] Running database migrations...
+python manage.py makemigrations --noinput
+python manage.py migrate --noinput
+
+REM Start Django backend
+echo [5/7] Starting Django backend...
+start "PanditTalk Backend" cmd /k "cd /d %~dp0backend && call venv\Scripts\activate.bat && python manage.py runserver 127.0.0.1:8000 --noreload"
+
+REM Wait for backend to start
+timeout /t 8 /nobreak >nul
+
+REM Start Pandit App
+echo [6/7] Starting Pandit App...
+start "PanditTalk Pandit App" cmd /k "cd /d %~dp0pandit_app && flutter run -d chrome --web-port=8081"
+
+REM Wait for Pandit app to initialize
+timeout /t 10 /nobreak >nul
+
+REM Start User App
+echo [7/7] Starting User App...
+start "PanditTalk User App" cmd /k "cd /d %~dp0mobile && flutter run -d chrome --web-port=8082"
+
+REM Wait for User app to initialize
+timeout /t 5 /nobreak >nul
+
+REM Open admin panel
+start http://localhost:8000/admin
 
 echo.
 echo ========================================
-echo    ✅ Both servers are starting!
+echo       PANDITTALK STARTED SUCCESSFULLY!
 echo ========================================
 echo.
-echo    📦 Backend:   http://localhost:8000
-echo    📱 Frontend:  Will open in Chrome
+echo Backend:    http://localhost:8000
+echo Admin:      http://localhost:8000/admin
+echo Pandit App: http://localhost:8081
+echo User App:   http://localhost:8082
 echo.
-echo    ℹ️  Two new windows opened:
-echo       1. Backend Server (keep open)
-echo       2. Frontend Server (keep open)
-echo.
-echo    🔴 To stop: Close the server windows
-echo ========================================
-echo.
-pause
-
+echo Press any key to exit this window...
+pause >nul
+exit

@@ -1,24 +1,6 @@
 from django.db import models
 from django.conf import settings
-
-# PanditProfile holds extra info for Pandit users
-class PanditProfile(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='pandit_profile'
-    )
-    languages = models.JSONField(default=list, blank=True)
-    expertise = models.TextField(blank=True, null=True)
-    experience_years = models.IntegerField(default=0)
-    fee_per_minute = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
-    rating = models.FloatField(default=0.0)
-    is_online = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Pandit {self.user.username}"
-
+from users.models import PanditProfile
 
 # Booking for scheduled consultations
 class Booking(models.Model):
@@ -92,7 +74,7 @@ class ChatMessage(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='sent_core_messages'  # ✅ added to avoid clash
+        related_name='sent_core_messages'
     )
     text = models.TextField(blank=True, null=True)
     is_system = models.BooleanField(default=False)

@@ -97,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 18),
-                const Text(
+                Text(
                   "Pandittalk",
                   style: TextStyle(
                     fontSize: 28,

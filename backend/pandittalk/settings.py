@@ -26,7 +26,10 @@ if ENV_PATH.exists():
 # Basic
 SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('1', 'true', 'yes')
-ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
+# Allow all hosts in development for mobile device access
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,0.0.0.0,172.29.240.1,10.0.2.2').split(',') if h.strip()]
+if DEBUG:
+    ALLOWED_HOSTS = ['*']  # Allow all in development
 
 # Application definition
 INSTALLED_APPS = [
@@ -128,10 +131,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5000",
     "http://127.0.0.1:5000",
 ]
-# Allow all localhost ports for development
+# Allow all localhost ports and local network IPs for development
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^http://localhost:\d+$",
     r"^http://127\.0\.0\.1:\d+$",
+    r"^http://172\.\d+\.\d+\.\d+:\d+$",  # Allow 172.x.x.x network
+    r"^http://10\.\d+\.\d+\.\d+:\d+$",   # Allow 10.x.x.x network
+    r"^http://192\.168\.\d+\.\d+:\d+$",  # Allow 192.168.x.x network
 ]
 
 # REST Framework
@@ -189,6 +195,22 @@ APP_ACCENT_COLOR = "#FFB300"
 APP_LOGO_URL = "/static/logo.png"
 
 # Google Sheets Integration (optional)
-GOOGLE_SHEET_ID = os.getenv('GOOGLE_SHEET_ID', '1L06nvUh8LT6yvDqrX1HGN6-a62KzrRBKzHoal-LdZqY')
-GOOGLE_WORKSHEET_NAME = os.getenv('GOOGLE_WORKSHEET_NAME', 'Sheet1')
-GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', '')
+# Your Google Sheet: https://docs.google.com/spreadsheets/d/1N40ViPr2xcHLjmZOQiUeUB-VINVd-MgkwtgkEkC9W8s/edit
+GOOGLE_SHEET_ID = os.getenv('GOOGLE_SHEET_ID', '1N40ViPr2xcHLjmZOQiUeUB-VINVd-MgkwtgkEkC9W8s')
+GOOGLE_WORKSHEET_NAME = os.getenv('GOOGLE_WORKSHEET_NAME', 'Pandit Registrations')
+# Path to your service account JSON file (download from Google Cloud Console)
+GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON', str(BASE_DIR / 'google-credentials.json'))
+GOOGLE_DRIVE_FOLDER_ID = os.getenv('GOOGLE_DRIVE_FOLDER_ID', '1AIPnBl5WrWO1L-T30PQv-AEuj2xu17gs')
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+DEFAULT_FROM_EMAIL = 'noreply@pandittalk.com'
+ADMIN_EMAIL = 'admin@pandittalk.com'
+
+# For production, use:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')

@@ -1,7 +1,6 @@
 class Constants {
-  // If running backend locally and using Android emulator, use 10.0.2.2
-  // Update this to your server URL when deployed (https://api.yourdomain.com)
-  static const String baseUrl = "http://10.0.2.2:8000";
+  // Using detected gateway IP
+  static const String baseUrl = "http://localhost:8000";
 
   // Hero image for Login screen (Panditji photo)
   static const String panditHeroImageUrl =

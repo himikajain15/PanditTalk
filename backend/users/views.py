@@ -109,26 +109,26 @@ def send_otp(request):
     if not phone:
         return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+    # FOR TESTING: Skip OTP generation, accept any OTP during verification
+    # In production, uncomment the code below:
+    
     # Generate OTP
-    otp_code = PhoneOTP.generate_otp()
-    
+    # otp_code = PhoneOTP.generate_otp()
     # Mark old OTPs for this phone as expired/verified (cleanup)
-    PhoneOTP.objects.filter(phone=phone, verified=False).update(verified=True)
-    
+    # PhoneOTP.objects.filter(phone=phone, verified=False).update(verified=True)
     # Create new OTP
-    otp_obj = PhoneOTP.objects.create(phone=phone, otp=otp_code)
-    
+    # otp_obj = PhoneOTP.objects.create(phone=phone, otp=otp_code)
     # TODO: In production, integrate with SMS service (Twilio, AWS SNS, etc.)
-    # For now, log it (in dev you can check logs/database for OTP)
-    logger.info(f"OTP for {phone}: {otp_code}")
-    print(f"🔐 OTP for {phone}: {otp_code}")  # For development
+    # logger.info(f"OTP for {phone}: {otp_code}")
+    # print(f"🔐 OTP for {phone}: {otp_code}")
+    
+    logger.info(f"OTP requested for {phone} (TEST MODE: any OTP accepted)")
+    print(f"📱 OTP request for {phone} (TEST MODE: Enter any 6-digit code)")
     
     return Response({
         "ok": True,
         "status": "sent",
-        "message": f"OTP sent to {phone}",
-        # In production, don't send OTP in response
-        "otp": otp_code if request.query_params.get('debug') == 'true' else None
+        "message": f"OTP sent to {phone} (TEST MODE: Use any 6-digit code)",
     }, status=status.HTTP_200_OK)
 
 
@@ -144,20 +144,21 @@ def verify_otp(request):
 
     # Find unverified, non-expired OTP
     try:
-        otp_obj = PhoneOTP.objects.filter(phone=phone, verified=False).first()
+        # FOR TESTING: Accept any OTP (bypass verification)
+        # In production, uncomment the validation below
         
-        if not otp_obj:
-            return Response({"error": "No OTP found. Please request a new OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        # otp_obj = PhoneOTP.objects.filter(phone=phone, verified=False).first()
+        # if not otp_obj:
+        #     return Response({"error": "No OTP found. Please request a new OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        # if otp_obj.is_expired():
+        #     return Response({"error": "OTP has expired. Please request a new one"}, status=status.HTTP_400_BAD_REQUEST)
+        # if otp_obj.otp != otp:
+        #     return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
+        # otp_obj.verified = True
+        # otp_obj.save()
         
-        if otp_obj.is_expired():
-            return Response({"error": "OTP has expired. Please request a new one"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if otp_obj.otp != otp:
-            return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Mark OTP as verified
-        otp_obj.verified = True
-        otp_obj.save()
+        # FOR TESTING: Just log the OTP attempt
+        logger.info(f"Login attempt for {phone} with OTP: {otp}")
         
         # Get or create user by phone
         user, created = CustomUser.objects.get_or_create(

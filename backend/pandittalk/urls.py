@@ -11,6 +11,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # API namespaces (these will be provided by the apps you add next)
     path('api/auth/', include('users.urls')),           # users app (register/login/me)
+    path('api/pandit/', include('users.pandit_urls')),  # pandit-specific APIs
+    path('api/user/', include('users.user_consultation_urls')),  # user consultation APIs
     path('api/core/', include('core.urls')),            # core features (pandits, bookings, chat endpoints)
     path('api/horoscope/', include('horoscope.urls')),  # horoscope endpoints
     path('api/payments/', include('payments.urls')),    # payments (initiate, verify)

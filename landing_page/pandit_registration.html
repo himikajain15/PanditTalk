@@ -7,24 +7,41 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="../mobile/assets/images/logo.png" type="image/png">
+    <link rel="icon" href="logo.png" type="image/png">
 </head>
 <body class="pandit-registration-page">
+    <!-- Background Music - Om Chanting (Local File) -->
+    <audio id="bgMusic" loop preload="auto" style="display: none;">
+        <source src="om-chanting.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="pandit-registration-gradient"></div>
 
     <header class="pandit-registration-header">
         <div class="pandit-registration-shell">
-            <p class="mini-label">PanditTalk Network</p>
-            <h1>Join India’s Fastest Growing Astrologer Community</h1>
-            <p class="header-description">
+            <p class="mini-label" data-i18n="PanditTalk Network">PanditTalk Network</p>
+            <h1 data-i18n="Join India's Fastest Growing Astrologer Community">Join India's Fastest Growing Astrologer Community</h1>
+            <p class="header-description" data-i18n="Complete this verified onboarding form to get listed on PanditTalk, access thousands of seekers, and grow your spiritual practice with guaranteed payments.">
                 Complete this verified onboarding form to get listed on PanditTalk, access thousands of seekers, 
                 and grow your spiritual practice with guaranteed payments.
             </p>
             <div class="header-actions">
-                <button class="btn-secondary pandit-back-btn" onclick="window.location.href='index.html'">
+                <button class="btn-secondary pandit-back-btn" onclick="window.location.href='index.html'" data-i18n="← Back to Landing Page">
                 ← Back to Landing Page
                 </button>
+                <select id="languageSelect" class="language-select" onchange="changeLanguage(this.value)">
+                    <option value="en" data-i18n="English">English</option>
+                    <option value="hi" data-i18n="Hindi">हिंदी (Hindi)</option>
+                    <option value="mr" data-i18n="Marathi">मराठी (Marathi)</option>
+                    <option value="te" data-i18n="Telugu">తెలుగు (Telugu)</option>
+                    <option value="gu" data-i18n="Gujarati">ગુજરાતી (Gujarati)</option>
+                    <option value="kn" data-i18n="Kannada">ಕನ್ನಡ (Kannada)</option>
+                </select>
             </div>
         </div>
     </header>
@@ -34,62 +51,62 @@
         <section class="pandit-registration-form-card">
             <div class="pandit-form-header">
                 <div>
-                    <p class="mini-label">Official Onboarding Form</p>
-                    <h2>Pandit / Astrologer Registration</h2>
-                    <p>Only approved profiles go live on the PanditTalk app.</p>
+                    <p class="mini-label" data-i18n="Official Onboarding Form">Official Onboarding Form</p>
+                    <h2 data-i18n="Pandit / Astrologer Registration">Pandit / Astrologer Registration</h2>
+                    <p data-i18n="Only approved profiles go live on the PanditTalk app.">Only approved profiles go live on the PanditTalk app.</p>
                 </div>
             </div>
 
             <form id="panditRegistrationForm" onsubmit="submitPanditRegistration(event)">
                 <div class="form-section">
-                    <h3>Personal Information</h3>
+                    <h3 data-i18n="Personal Information">Personal Information</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="panditName">Full Name *</label>
-                            <input type="text" id="panditName" name="name" required placeholder="Enter your full legal name">
+                            <label for="panditName" data-i18n="Full Name *">Full Name *</label>
+                            <input type="text" id="panditName" name="name" required data-i18n-placeholder="Enter your full legal name" placeholder="Enter your full legal name">
                         </div>
                         <div class="form-group">
-                            <label for="panditPhone">Phone Number *</label>
-                            <input type="tel" id="panditPhone" name="phone" required pattern="[0-9]{10}" placeholder="10-digit mobile number">
+                            <label for="panditPhone" data-i18n="Phone Number *">Phone Number *</label>
+                            <input type="tel" id="panditPhone" name="phone" required pattern="[0-9]{10}" data-i18n-placeholder="10-digit mobile number" placeholder="10-digit mobile number">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="panditEmail">Email Address *</label>
-                            <input type="email" id="panditEmail" name="email" required placeholder="your.email@example.com">
+                            <label for="panditEmail" data-i18n="Email Address *">Email Address *</label>
+                            <input type="email" id="panditEmail" name="email" required data-i18n-placeholder="your.email@example.com" placeholder="your.email@example.com">
                         </div>
                         <div class="form-group">
-                            <label for="panditAge">Date of Birth *</label>
+                            <label for="panditAge" data-i18n="Date of Birth *">Date of Birth *</label>
                             <input type="date" id="panditAge" name="dob" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="panditGender">Gender *</label>
+                            <label for="panditGender" data-i18n="Gender *">Gender *</label>
                             <select id="panditGender" name="gender" required>
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
+                                <option value="" data-i18n="Select Gender">Select Gender</option>
+                                <option value="Male" data-i18n="Male">Male</option>
+                                <option value="Female" data-i18n="Female">Female</option>
+                                <option value="Other" data-i18n="Other">Other</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="panditState">State *</label>
-                            <input type="text" id="panditState" name="state" required placeholder="e.g., Maharashtra">
+                            <label for="panditState" data-i18n="State *">State *</label>
+                            <input type="text" id="panditState" name="state" required data-i18n-placeholder="e.g., Maharashtra" placeholder="e.g., Maharashtra">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="panditAddress">Full Address *</label>
-                        <textarea id="panditAddress" name="address" rows="2" required placeholder="Complete address with pin code"></textarea>
+                        <label for="panditAddress" data-i18n="Full Address *">Full Address *</label>
+                        <textarea id="panditAddress" name="address" rows="2" required data-i18n-placeholder="Complete address with pin code" placeholder="Complete address with pin code"></textarea>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>Professional Details</h3>
+                    <h3 data-i18n="Professional Details">Professional Details</h3>
                     <div class="form-group">
-                        <label for="panditSpecialization">Main Specialization *</label>
+                        <label for="panditSpecialization" data-i18n="Main Specialization *">Main Specialization *</label>
                         <select id="panditSpecialization" name="specialization" required>
-                            <option value="">Select Your Main Expertise</option>
+                            <option value="" data-i18n="Select Your Main Expertise">Select Your Main Expertise</option>
                             <option value="Vedic Astrology">Vedic Astrology (Jyotish)</option>
                             <option value="Numerology">Numerology</option>
                             <option value="Tarot Reading">Tarot Reading</option>
@@ -110,34 +127,34 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="panditOtherServices">Other Services Offered</label>
-                        <input type="text" id="panditOtherServices" name="other_services" placeholder="e.g., Marriage Counseling, Career Guidance">
+                        <label for="panditOtherServices" data-i18n="Other Services Offered">Other Services Offered</label>
+                        <input type="text" id="panditOtherServices" name="other_services" data-i18n-placeholder="e.g., Marriage Counseling, Career Guidance" placeholder="e.g., Marriage Counseling, Career Guidance">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="panditExperience">Total Experience (Years) *</label>
-                            <input type="number" id="panditExperience" name="experience" required min="0" max="50" placeholder="Years of practice">
+                            <label for="panditExperience" data-i18n="Total Experience (Years) *">Total Experience (Years) *</label>
+                            <input type="number" id="panditExperience" name="experience" required min="0" max="50" data-i18n-placeholder="Years of practice" placeholder="Years of practice">
                         </div>
                         <div class="form-group">
-                            <label for="panditEducation">Educational Qualification (Optional)</label>
-                            <input type="text" id="panditEducation" name="education" placeholder="e.g., B.A., M.A., Ph.D.">
-                            <small class="helper-text">Skip if you don't have a formal degree</small>
+                            <label for="panditEducation" data-i18n="Educational Qualification (Optional)">Educational Qualification (Optional)</label>
+                            <input type="text" id="panditEducation" name="education" data-i18n-placeholder="e.g., B.A., M.A., Ph.D." placeholder="e.g., B.A., M.A., Ph.D.">
+                            <small class="helper-text" data-i18n-html="Skip if you don't have a formal degree">Skip if you don't have a formal degree</small>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="panditLanguages">Languages Known *</label>
-                        <input type="text" id="panditLanguages" name="languages" placeholder="e.g., Hindi, English, Marathi, Sanskrit" required>
+                        <label for="panditLanguages" data-i18n="Languages Known *">Languages Known *</label>
+                        <input type="text" id="panditLanguages" name="languages" data-i18n-placeholder="e.g., Hindi, English, Marathi, Sanskrit" placeholder="e.g., Hindi, English, Marathi, Sanskrit" required>
                     </div>
                     <div class="form-group">
-                        <label for="panditCertifications">Professional Certifications/Awards</label>
-                        <textarea id="panditCertifications" name="qualifications" rows="3" placeholder="e.g., Jyotish Acharya from XYZ University, Best Astrologer Award 2023..."></textarea>
+                        <label for="panditCertifications" data-i18n="Professional Certifications/Awards">Professional Certifications/Awards</label>
+                        <textarea id="panditCertifications" name="qualifications" rows="3" data-i18n-placeholder="e.g., Jyotish Acharya from XYZ University, Best Astrologer Award 2023..." placeholder="e.g., Jyotish Acharya from XYZ University, Best Astrologer Award 2023..."></textarea>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>Availability & Preference</h3>
+                    <h3 data-i18n="Availability & Preference">Availability & Preference</h3>
                     <div class="form-group">
-                        <label>Preferred Working Days *</label>
+                        <label data-i18n="Preferred Working Days *">Preferred Working Days *</label>
                         <div class="checkbox-group">
                             <label><input type="checkbox" name="working_days" value="Monday"> Monday</label>
                             <label><input type="checkbox" name="working_days" value="Tuesday"> Tuesday</label>
@@ -149,7 +166,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Preferred Working Hours *</label>
+                        <label data-i18n="Preferred Working Hours *">Preferred Working Hours *</label>
                         <div class="checkbox-group">
                             <label><input type="checkbox" name="availability" value="Morning (6AM-12PM)"> Morning (6AM-12PM)</label>
                             <label><input type="checkbox" name="availability" value="Afternoon (12PM-6PM)"> Afternoon (12PM-6PM)</label>
@@ -158,73 +175,73 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="panditWeeklyHours">Expected Weekly Hours *</label>
+                        <label for="panditWeeklyHours" data-i18n="Expected Weekly Hours *">Expected Weekly Hours *</label>
                         <select id="panditWeeklyHours" name="weekly_hours" required>
-                            <option value="">Select Hours per Week</option>
-                            <option value="Less than 10 hours">Less than 10 hours</option>
-                            <option value="10-20 hours">10-20 hours</option>
-                            <option value="20-30 hours">20-30 hours</option>
-                            <option value="30-40 hours">30-40 hours</option>
-                            <option value="40+ hours (Full-time)">40+ hours (Full-time)</option>
+                            <option value="" data-i18n="Select Hours per Week">Select Hours per Week</option>
+                            <option value="Less than 10 hours" data-i18n="Less than 10 hours">Less than 10 hours</option>
+                            <option value="10-20 hours" data-i18n="10-20 hours">10-20 hours</option>
+                            <option value="20-30 hours" data-i18n="20-30 hours">20-30 hours</option>
+                            <option value="30-40 hours" data-i18n="30-40 hours">30-40 hours</option>
+                            <option value="40+ hours (Full-time)" data-i18n="40+ hours (Full-time)">40+ hours (Full-time)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>Bank Details (For Payments)</h3>
+                    <h3 data-i18n="Bank Details (For Payments)">Bank Details (For Payments)</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="panditAccountName">Account Holder Name *</label>
-                            <input type="text" id="panditAccountName" name="account_name" required placeholder="As per bank records">
+                            <label for="panditAccountName" data-i18n="Account Holder Name *">Account Holder Name *</label>
+                            <input type="text" id="panditAccountName" name="account_name" required data-i18n-placeholder="As per bank records" placeholder="As per bank records">
                         </div>
                         <div class="form-group">
-                            <label for="panditAccountNumber">Bank Account Number *</label>
-                            <input type="text" id="panditAccountNumber" name="account_number" required placeholder="Account number">
+                            <label for="panditAccountNumber" data-i18n="Bank Account Number *">Bank Account Number *</label>
+                            <input type="text" id="panditAccountNumber" name="account_number" required data-i18n-placeholder="Account number" placeholder="Account number">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="panditIfsc">IFSC Code *</label>
-                            <input type="text" id="panditIfsc" name="ifsc_code" required placeholder="e.g., SBIN0001234" pattern="[A-Z]{4}0[A-Z0-9]{6}">
+                            <label for="panditIfsc" data-i18n="IFSC Code *">IFSC Code *</label>
+                            <input type="text" id="panditIfsc" name="ifsc_code" required data-i18n-placeholder="e.g., SBIN0001234" placeholder="e.g., SBIN0001234" pattern="[A-Z]{4}0[A-Z0-9]{6}">
                         </div>
                         <div class="form-group">
-                            <label for="panditBankName">Bank Name *</label>
-                            <input type="text" id="panditBankName" name="bank_name" required placeholder="e.g., State Bank of India">
+                            <label for="panditBankName" data-i18n="Bank Name *">Bank Name *</label>
+                            <input type="text" id="panditBankName" name="bank_name" required data-i18n-placeholder="e.g., State Bank of India" placeholder="e.g., State Bank of India">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="panditPanCard">PAN Card Number *</label>
-                        <input type="text" id="panditPanCard" name="pan_card" required placeholder="e.g., ABCDE1234F" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+                        <label for="panditPanCard" data-i18n="PAN Card Number *">PAN Card Number *</label>
+                        <input type="text" id="panditPanCard" name="pan_card" required data-i18n-placeholder="e.g., ABCDE1234F" placeholder="e.g., ABCDE1234F" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>About You</h3>
+                    <h3 data-i18n="About You">About You</h3>
                     <div class="form-group">
-                        <label for="panditBio">Professional Bio (max 1000 characters) *</label>
-                        <textarea id="panditBio" name="bio" rows="5" maxlength="1000" required placeholder="Tell us about your expertise, specialties, approach to consultations, and what makes you unique..."></textarea>
-                        <small class="helper-text">This will be shown to users on your profile</small>
+                        <label for="panditBio" data-i18n="Professional Bio (max 1000 characters) *">Professional Bio (max 1000 characters) *</label>
+                        <textarea id="panditBio" name="bio" rows="5" maxlength="1000" required data-i18n-placeholder="Tell us about your expertise, specialties, approach to consultations, and what makes you unique..." placeholder="Tell us about your expertise, specialties, approach to consultations, and what makes you unique..."></textarea>
+                        <small class="helper-text" data-i18n="This will be shown to users on your profile">This will be shown to users on your profile</small>
                     </div>
                     <div class="form-group">
-                        <label for="panditAchievements">Notable Achievements/Recognition</label>
-                        <textarea id="panditAchievements" name="achievements" rows="3" placeholder="Awards, media features, notable clients (optional)"></textarea>
+                        <label for="panditAchievements" data-i18n="Notable Achievements/Recognition">Notable Achievements/Recognition</label>
+                        <textarea id="panditAchievements" name="achievements" rows="3" data-i18n-placeholder="Awards, media features, notable clients (optional)" placeholder="Awards, media features, notable clients (optional)"></textarea>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>Identity Verification</h3>
+                    <h3 data-i18n="Identity Verification">Identity Verification</h3>
                     <div class="form-group">
-                        <label for="panditIdProof">Upload Government ID Proof (Aadhaar / PAN / Voter ID) *</label>
+                        <label for="panditIdProof" data-i18n="Upload Government ID Proof (Aadhaar / PAN / Voter ID) *">Upload Government ID Proof (Aadhaar / PAN / Voter ID) *</label>
                         <input type="file" id="panditIdProof" name="id_proof" accept="image/*,.pdf" required>
-                        <small class="helper-text">
+                        <small class="helper-text" data-i18n-html="✓ Accepted formats: JPG, PNG, PDF (Max 5MB) <br>✓ Document must be clear and readable">
                             ✓ Accepted formats: JPG, PNG, PDF (Max 5MB) <br>
                             ✓ Document must be clear and readable
                         </small>
                     </div>
                     <div class="form-group">
-                        <label for="panditPhoto">Upload Your Recent Photo *</label>
+                        <label for="panditPhoto" data-i18n="Upload Your Recent Photo *">Upload Your Recent Photo *</label>
                         <input type="file" id="panditPhoto" name="photo" accept="image/*" required>
-                        <small class="helper-text">
+                        <small class="helper-text" data-i18n-html="✓ Clear, front-facing photo <br>✓ Professional attire preferred">
                             ✓ Clear, front-facing photo <br>
                             ✓ Professional attire preferred
                         </small>
@@ -232,9 +249,9 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>Technical Setup</h3>
+                    <h3 data-i18n="Technical Setup">Technical Setup</h3>
                     <div class="form-group">
-                        <label>Do you have access to the following? *</label>
+                        <label data-i18n="Do you have access to the following? *">Do you have access to the following? *</label>
                         <div class="checkbox-group">
                             <label><input type="checkbox" name="technical_access" value="Smartphone" required> Smartphone (Android/iOS)</label>
                             <label><input type="checkbox" name="technical_access" value="Stable Internet"> Stable Internet Connection</label>
@@ -243,37 +260,37 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="panditHowHeard">How did you hear about PanditTalk? *</label>
+                        <label for="panditHowHeard" data-i18n="How did you hear about PanditTalk? *">How did you hear about PanditTalk? *</label>
                         <select id="panditHowHeard" name="how_heard" required>
-                            <option value="">Select Option</option>
-                            <option value="Google Search">Google Search</option>
-                            <option value="Social Media">Social Media (Facebook/Instagram)</option>
-                            <option value="Friend/Family Referral">Friend/Family Referral</option>
-                            <option value="Advertisement">Advertisement</option>
-                            <option value="Another Pandit">Another Pandit</option>
-                            <option value="Other">Other</option>
+                            <option value="" data-i18n="Select Option">Select Option</option>
+                            <option value="Google Search" data-i18n="Google Search">Google Search</option>
+                            <option value="Social Media" data-i18n="Social Media (Facebook/Instagram)">Social Media (Facebook/Instagram)</option>
+                            <option value="Friend/Family Referral" data-i18n="Friend/Family Referral">Friend/Family Referral</option>
+                            <option value="Advertisement" data-i18n="Advertisement">Advertisement</option>
+                            <option value="Another Pandit" data-i18n="Another Pandit">Another Pandit</option>
+                            <option value="Other" data-i18n="Other">Other</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>Additional Information</h3>
+                    <h3 data-i18n="Additional Information">Additional Information</h3>
                     <div class="form-group">
-                        <label for="panditComments">Additional Comments/Questions</label>
-                        <textarea id="panditComments" name="comments" rows="3" placeholder="Any specific requirements, questions, or information you'd like to share..."></textarea>
+                        <label for="panditComments" data-i18n="Additional Comments/Questions">Additional Comments/Questions</label>
+                        <textarea id="panditComments" name="comments" rows="3" data-i18n-placeholder="Any specific requirements, questions, or information you'd like to share..." placeholder="Any specific requirements, questions, or information you'd like to share..."></textarea>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" data-i18n-html="I agree to the <a href='#' onclick='showTerms(event)'>Terms & Conditions</a> and <a href='#' onclick='showPrivacyPolicy(event)'>Privacy Policy</a>">
                         <input type="checkbox" required>
-                        I agree to the <a href="#" onclick="showTerms(event)">Terms & Conditions</a> and <a href="#" onclick="showPrivacyPolicy(event)">Privacy Policy</a>
+                        <span id="termsText" data-i18n-html="I agree to the <a href='#' onclick='showTerms(event)'>Terms & Conditions</a> and <a href='#' onclick='showPrivacyPolicy(event)'>Privacy Policy</a>">I agree to the <a href="#" onclick="showTerms(event)">Terms & Conditions</a> and <a href="#" onclick="showPrivacyPolicy(event)">Privacy Policy</a></span>
                     </label>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
-                    <button type="submit" class="btn-primary">Submit Registration</button>
+                    <button type="button" class="btn-secondary" onclick="window.location.href='index.html'" data-i18n="Cancel">Cancel</button>
+                    <button type="submit" class="btn-primary" data-i18n="Submit Registration">Submit Registration</button>
                 </div>
 
                 <div id="formMessage" class="form-message"></div>

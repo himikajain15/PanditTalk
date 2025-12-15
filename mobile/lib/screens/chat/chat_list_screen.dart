@@ -33,7 +33,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Chat with Pandits"), backgroundColor: AppTheme.gold),
+      appBar: AppBar(
+        title: const Text("Chat with Pandits"),
+        backgroundColor: AppTheme.gold,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: AppTheme.gold))
           : RefreshIndicator(

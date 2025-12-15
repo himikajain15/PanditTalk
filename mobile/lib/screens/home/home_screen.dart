@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/booking_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../models/pandit.dart';
 import '../chat/chat_list_screen.dart';
 import '../call/call_screen.dart';
@@ -14,6 +15,7 @@ import '../services/free_kundli_screen.dart';
 import '../services/kundli_matching_screen.dart';
 import '../services/astrology_blog_screen.dart';
 import '../payments/payment_screen.dart';
+import '../consultation/pandits_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   List<Pandit> _livePandits = [];
   List<Pandit> _celebrityPandits = [];
@@ -71,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final isMobile = screenWidth < 600;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppTheme.lightGray,
       drawer: AppDrawer(),
       body: SafeArea(
@@ -114,69 +118,165 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader(user, BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: AppTheme.white,
-      child: Row(
+      child: Column(
         children: [
-          // Hamburger menu with profile pic
-          InkWell(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: AppTheme.primaryYellow,
-                  child: Text(
-                    user?.username?[0].toUpperCase() ?? 'U',
-                    style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: AppTheme.white,
-                      shape: BoxShape.circle,
+          // Top row: Profile, Name, Actions
+          Row(
+            children: [
+              // Hamburger menu with profile pic
+              InkWell(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppTheme.primaryYellow,
+                      child: Text(
+                        user?.username?[0].toUpperCase() ?? 'U',
+                        style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                     ),
-                    child: Icon(Icons.menu, size: 12, color: AppTheme.black),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.menu, size: 11, color: AppTheme.black),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hi ${user?.username ?? 'User'}',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              // Language Selector
+              _buildLanguageSelector(context),
+              SizedBox(width: 8),
+              // Support Icon
+              IconButton(
+                icon: Icon(Icons.support_agent, color: AppTheme.primaryYellow),
+                onPressed: () {},
+                iconSize: 22,
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          // Bottom row: Add Cash Button (full width)
+          SizedBox(
+            width: double.infinity,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.primaryYellow,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryYellow.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showRechargeDialog(context),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.account_balance_wallet, size: 18, color: AppTheme.black),
+                        SizedBox(width: 8),
+                        Text(
+                          'Add Cash to Wallet',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-          SizedBox(width: 12),
-          Text(
-            'Hi ${user?.username ?? 'User'}',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Spacer(),
-          OutlinedButton.icon(
-            onPressed: () => _showRechargeDialog(context),
-            icon: Icon(Icons.add, size: 16),
-            label: Text('Add Cash'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.black,
-              side: BorderSide(color: AppTheme.mediumGray),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-          ),
-          SizedBox(width: 4),
-          IconButton(
-            icon: Text('A अ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            onPressed: () {},
-            iconSize: 20,
-          ),
-          IconButton(
-            icon: Icon(Icons.support_agent, color: AppTheme.primaryYellow),
-            onPressed: () {},
-            iconSize: 24,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLanguageSelector(BuildContext context) {
+    return Consumer<LanguageProvider>(
+      builder: (context, langProvider, _) {
+        final currentLang = langProvider.locale.languageCode;
+        final currentLangData = LanguageProvider.supportedLanguages.firstWhere(
+          (l) => l['code'] == currentLang,
+          orElse: () => LanguageProvider.supportedLanguages[0],
+        );
+
+        return PopupMenuButton<String>(
+          icon: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppTheme.primaryYellow.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(currentLangData['flag']!, style: TextStyle(fontSize: 16)),
+                SizedBox(width: 4),
+                Icon(Icons.arrow_drop_down, size: 16, color: AppTheme.black),
+              ],
+            ),
+          ),
+          onSelected: (String code) {
+            langProvider.setLanguage(Locale(code));
+          },
+          itemBuilder: (BuildContext context) {
+            return LanguageProvider.supportedLanguages.map((lang) {
+              return PopupMenuItem<String>(
+                value: lang['code'],
+                child: Row(
+                  children: [
+                    Text(lang['flag']!, style: TextStyle(fontSize: 20)),
+                    SizedBox(width: 12),
+                    Text(lang['name']!),
+                    if (lang['code'] == currentLang)
+                      Spacer(),
+                    if (lang['code'] == currentLang)
+                      Icon(Icons.check, color: AppTheme.primaryYellow, size: 18),
+                  ],
+                ),
+              );
+            }).toList();
+          },
+        );
+      },
     );
   }
 
@@ -199,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Green header
             Container(
               padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
+          decoration: BoxDecoration(
                 color: Colors.green,
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -227,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
             
             // Tip
             Row(
-              children: [
+                  children: [
                 Icon(Icons.lightbulb, color: AppTheme.primaryYellow, size: 16),
                 SizedBox(width: 6),
                 Text(
@@ -287,15 +387,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   foregroundColor: AppTheme.black,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text(
+                      child: Text(
                   'Proceed to Pay',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-          ],
         ),
-      ),
     );
   }
 
@@ -389,8 +489,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: EdgeInsets.all(16),
       padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
           colors: [Color(0xFF2C1A4D), Color(0xFF4A2B6F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -398,17 +498,17 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
-        children: [
+            children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                   '100% CASHBACK!',
-                  style: TextStyle(
+                            style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 4),
@@ -482,7 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+                      Text(
                 'Celebrity Astrologers',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
@@ -690,8 +790,8 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(width: 12),
             
             // Info
-            Expanded(
-              child: Column(
+              Expanded(
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
@@ -737,9 +837,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(width: 8),
                       Text('${(pandit.rating * 1000).toInt()} orders', style: TextStyle(fontSize: 11, color: AppTheme.mediumGray)),
                     ],
-                  ),
-                ],
               ),
+            ],
+          ),
             ),
             SizedBox(width: 12),
             
