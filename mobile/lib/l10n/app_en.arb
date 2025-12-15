@@ -1,0 +1,98 @@
+{
+  "@@locale": "en",
+  "appName": "Pandittalk",
+  "@appName": {
+    "description": "The application name"
+  },
+  "hi": "Hi {name}",
+  "@hi": {
+    "description": "Greeting with name",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addCash": "Add Cash",
+  "searchAstrologers": "Search astrologers...",
+  "chatWithAstrologer": "Chat with Astrologer",
+  "callWithAstrologer": "Call with Astrologer",
+  "chat": "Chat",
+  "call": "Call",
+  "home": "Home",
+  "profile": "Profile",
+  "wallet": "Wallet",
+  "settings": "Settings",
+  "login": "Login",
+  "phoneNumber": "Phone Number",
+  "enterPhone": "Enter your phone number",
+  "getOTP": "Get OTP",
+  "verifyOTP": "Verify OTP",
+  "enterOTP": "Enter OTP",
+  "submit": "Submit",
+  "cancel": "Cancel",
+  "loading": "Loading...",
+  "error": "Error",
+  "retry": "Retry",
+  "freeKundli": "Free Kundli (AI)",
+  "startAIKundliChat": "Start AI Kundli Chat",
+  "aiPoweredKundliAnalysis": "AI-Powered Kundli Analysis",
+  "getInstantKundliReading": "Get instant Kundli reading powered by AI",
+  "dailyHoroscope": "Daily Horoscope",
+  "kundliMatching": "Kundli Matching",
+  "celebrityAstrologers": "Celebrity Astrologers",
+  "liveAstrologers": "Astrologers Live",
+  "viewAll": "View All",
+  "registerForFreebie": "Register for Freebie",
+  "first1000UsersGetFreebie": "First 1000 users get a freebie!",
+  "loginAndRegisterNow": "Login and register now to claim your welcome gift before the slots run out.",
+  "cashback100": "100% CASHBACK!",
+  "onYourFirstRecharge": "on your first recharge",
+  "rechargeNow": "RECHARGE NOW",
+  "recharge": "Recharge",
+  "addCashToWallet": "Add Cash to Wallet",
+  "proceedToPay": "Proceed to Pay",
+  "rechargeNowTitle": "Recharge Now",
+  "get100CashbackOnFirstRecharge": "Get 100% Cashback on your First recharge",
+  "tip90UsersRecharge": "Tip: 90% users recharge for 10 mins or more",
+  "extra": "{percent}% Extra",
+  "@extra": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "name": "Name",
+  "dateOfBirth": "Date of Birth (YYYY-MM-DD)",
+  "timeOfBirth": "Time of Birth (HH:MM 24h)",
+  "timezone": "Timezone (e.g. +05:30)",
+  "birthPlace": "Birth Place (City, Country)",
+  "generateKundli": "Generate Kundli",
+  "generatingKundli": "Generating your Kundli… 🕉️ Please wait.",
+  "failedToGenerateKundli": "Failed to generate Kundli",
+  "kundliSummary": "Kundli Summary for {name}",
+  "@kundliSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "summary": "Summary",
+  "planetDetails": "Planet Details",
+  "houseDetails": "House Details",
+  "whatIsYourName": "What is your name?",
+  "whereWereYouBorn": "Where were you born (place of birth)?",
+  "lookingUpLocation": "Looking up the location on map...",
+  "couldNotFindPlace": "Sorry, I couldn't find that place. Please try again with a more specific city or region name.",
+  "hereIsYourKundli": "Here is your Kundli, {name} 🧘‍♀️...",
+  "@hereIsYourKundli": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
+}
+
