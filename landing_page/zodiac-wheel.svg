@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD54F"/>
+      <stop offset="100%" stop-color="#FF8F00"/>
+    </linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="110" fill="url(#goldGradient)" stroke="#F57C00" stroke-width="5"/>
+  <circle cx="120" cy="120" r="90" fill="transparent" stroke="#F57C00" stroke-width="3"/>
+  <circle cx="120" cy="120" r="30" fill="transparent"/>
+  <g stroke="#F57C00" stroke-width="3">
+    <line x1="120" y1="20" x2="120" y2="60"/>
+    <line x1="120" y1="220" x2="120" y2="180"/>
+    <line x1="220" y1="120" x2="180" y2="120"/>
+    <line x1="20" y1="120" x2="60" y2="120"/>
+    <line x1="190" y1="60" x2="160" y2="90"/>
+    <line x1="190" y1="180" x2="160" y2="150"/>
+    <line x1="60" y1="60" x2="90" y2="90"/>
+    <line x1="60" y1="180" x2="90" y2="150"/>
+  </g>
+  <g font-family="Segoe UI Symbol, Arial, sans-serif" font-size="24" fill="#FFD54F" text-anchor="middle">
+    <text x="120" y="40">♈</text>
+    <text x="190" y="70">♉</text>
+    <text x="210" y="120">♊</text>
+    <text x="190" y="170">♋</text>
+    <text x="120" y="200">♌</text>
+    <text x="50" y="200">♍</text>
+    <text x="30" y="150">♎</text>
+    <text x="30" y="90">♏</text>
+    <text x="50" y="40">♐</text>
+    <text x="120" y="24">♑</text>
+    <text x="190" y="30">♒</text>
+    <text x="210" y="90">♓</text>
+  </g>
+  <g fill="#F57C00" font-size="12" font-family="Poppins, sans-serif" text-anchor="middle">
+    <text x="120" y="122" fill="#FFF9C4" font-size="48">✶</text>
+  </g>
+</svg>
+
