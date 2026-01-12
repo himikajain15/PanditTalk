@@ -21,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<ConsultationRequest> _pendingRequests = [];
   String _availabilityStatus = AppConstants.availabilityOffline;
   int _selectedIndex = 0;
+  // Optional auto-refresh timer can be added later if needed
 
   @override
   void initState() {
@@ -46,6 +47,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _pendingRequests = requestsJson
           .map((json) => ConsultationRequest.fromJson(json))
           .toList();
+    }
+
+    // Check for active consultations and auto-set to busy if any exist
+    final activeResult = await ApiService.getActiveConsultations();
+    if (activeResult['success']) {
+      final List<dynamic> activeJson = activeResult['data'];
+      if (activeJson.isNotEmpty) {
+        // Auto-set to busy if there are active consultations
+        _availabilityStatus = AppConstants.availabilityBusy;
+      }
     }
 
     setState(() => _isLoading = false);
@@ -95,6 +106,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _toggleVIP(ConsultationRequest request) async {
+    final result = request.isVIP
+        ? await ApiService.removeVIP(request.userId)
+        : await ApiService.markAsVIP(request.userId);
+    
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            request.isVIP 
+                ? 'VIP status removed' 
+                : 'User marked as VIP (will appear first in requests)',
+          ),
+          backgroundColor: AppConstants.orange,
+        ),
+      );
+      _loadDashboard(); // Reload to refresh VIP status
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${result['error']}'),
+          backgroundColor: AppConstants.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _blockUser(ConsultationRequest request) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Block User'),
+        content: Text('Are you sure you want to block ${request.userName}? They will not be able to send you consultation requests.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppConstants.red),
+            child: const Text('Block'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await ApiService.blockUser(request.userId);
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${request.userName} has been blocked'),
+            backgroundColor: AppConstants.red,
+          ),
+        );
+        _loadDashboard(); // Reload to remove blocked user's requests
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${result['error']}'),
+            backgroundColor: AppConstants.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _logout() async {
     await ApiService.logout();
     Navigator.of(context).pushReplacement(
@@ -112,10 +191,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadDashboard,
-          ),
-          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _logout,
           ),
@@ -127,22 +202,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
-          setState(() => _selectedIndex = index);
           if (index == 1) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const RequestsScreen()),
-            ).then((_) => _loadDashboard());
+            ).then((_) {
+              setState(() => _selectedIndex = 0);
+              _loadDashboard();
+            });
           } else if (index == 2) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const EarningsScreen()),
-            );
+            ).then((_) => setState(() => _selectedIndex = 0));
           } else if (index == 3) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ProfileScreen()),
-            );
+            ).then((_) => setState(() => _selectedIndex = 0));
+          } else {
+            setState(() => _selectedIndex = 0);
           }
         },
         selectedItemColor: AppConstants.primaryYellow,
@@ -179,14 +258,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Availability Toggle
+            // Availability Toggle (smaller card)
             _buildAvailabilityCard(),
-            const SizedBox(height: 28),
-            
-            // Stats Cards
-            _buildStatsGrid(),
-            const SizedBox(height: 24),
-            
+            const SizedBox(height: 16),
+
             // Pending Requests
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -218,6 +293,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _buildEmptyState()
             else
               ..._pendingRequests.map((request) => _buildRequestCard(request)),
+
+            const SizedBox(height: 24),
+
+            // Stats Cards
+            _buildStatsGrid(),
           ],
         ),
       ),
@@ -226,61 +306,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAvailabilityCard() {
     final isAvailable = _availabilityStatus == AppConstants.availabilityAvailable;
+    final isBusy = _availabilityStatus == AppConstants.availabilityBusy;
     return Card(
-      elevation: 5,
-      margin: const EdgeInsets.only(top: 4, bottom: 12),
+      elevation: 2,
+      margin: const EdgeInsets.only(top: 4, bottom: 8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
         side: BorderSide(
-          color: isAvailable ? AppConstants.green : AppConstants.red,
-          width: 2,
+          color: isAvailable 
+              ? AppConstants.green 
+              : (isBusy ? AppConstants.orange : AppConstants.red),
+          width: 1,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: (isAvailable ? AppConstants.green : AppConstants.grey).withOpacity(0.15),
+                color: (isAvailable 
+                    ? AppConstants.green 
+                    : (isBusy ? AppConstants.orange : AppConstants.grey)).withOpacity(0.15),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isAvailable ? AppConstants.green : AppConstants.red,
-                  width: 2,
+                  color: isAvailable 
+                      ? AppConstants.green 
+                      : (isBusy ? AppConstants.orange : AppConstants.red),
+                  width: 1,
                 ),
               ),
               child: Icon(
-                isAvailable ? Icons.check_circle_rounded : Icons.cancel_outlined,
-                color: isAvailable ? AppConstants.green : AppConstants.red,
-                size: 36,
+                isAvailable 
+                    ? Icons.check_circle_rounded 
+                    : (isBusy ? Icons.phone_in_talk : Icons.cancel_outlined),
+                color: isAvailable 
+                    ? AppConstants.green 
+                    : (isBusy ? AppConstants.orange : AppConstants.red),
+                size: 20,
               ),
             ),
-            const SizedBox(width: 22),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Your Status',
-                    style: AppConstants.captionStyle,
-                  ),
-                  const SizedBox(height: 6),
                   Text(
-                    isAvailable ? 'ONLINE' : 'OFFLINE',
+                    isAvailable 
+                        ? 'ONLINE' 
+                        : (isBusy ? 'BUSY' : 'OFFLINE'),
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: isAvailable ? AppConstants.green : AppConstants.red,
+                      color: isAvailable 
+                          ? AppConstants.green 
+                          : (isBusy ? AppConstants.orange : AppConstants.red),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     isAvailable
-                      ? 'You can now accept new consultation requests.'
-                      : 'Toggle ON to start receiving requests.',
+                      ? 'Accepting requests'
+                      : (isBusy ? 'In consultation' : 'Not accepting requests'),
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       color: AppConstants.grey,
                     ),
                   ),
@@ -288,10 +379,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             Transform.scale(
-              scale: 1.22,
+              scale: 0.85,
               child: Switch(
                 value: isAvailable,
-                onChanged: (_) => _toggleAvailability(),
+                onChanged: isBusy ? null : (_) => _toggleAvailability(), // Disable when busy
                 activeColor: AppConstants.green,
               ),
             ),
@@ -307,9 +398,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      mainAxisSpacing: 14,
-      crossAxisSpacing: 14,
-      childAspectRatio: 1.6,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      // Taller cards to fully avoid text overflow on small screens
+      childAspectRatio: 1.1,
       children: [
         _buildStatCard(
           'Today\'s Earnings',
@@ -346,27 +438,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
       ),
       child: Container(
-        constraints: BoxConstraints(minHeight: 92),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 34),
-            const SizedBox(height: 12),
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
             Text(
               title,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 color: AppConstants.grey,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               value,
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -379,7 +470,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildRequestCard(ConsultationRequest request) {
     final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
-    
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
@@ -430,20 +521,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppConstants.primaryYellow,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    request.serviceTypeDisplay,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppConstants.black,
+                Row(
+                  children: [
+                    if (request.isVIP)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: AppConstants.orange,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, size: 14, color: AppConstants.white),
+                            SizedBox(width: 2),
+                            Text(
+                              'VIP',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppConstants.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppConstants.primaryYellow,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        request.serviceTypeDisplay,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.black,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -472,7 +591,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 12),
             ],
             
-            // Details Row
+            // Details Row (show only your earnings for quick view)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -481,17 +600,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   '${request.duration} min',
                 ),
                 _buildDetailItem(
-                  Icons.currency_rupee,
-                  currencyFormat.format(request.amount),
-                ),
-                _buildDetailItem(
                   Icons.account_balance_wallet,
                   'You get: ${currencyFormat.format(request.panditEarnings)}',
                 ),
               ],
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            
+            // Block/VIP Actions Row
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    request.isVIP ? Icons.star : Icons.star_border,
+                    color: request.isVIP ? AppConstants.orange : AppConstants.grey,
+                    size: 20,
+                  ),
+                  onPressed: () => _toggleVIP(request),
+                  tooltip: request.isVIP ? 'Remove VIP' : 'Mark as VIP',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.block, color: AppConstants.red, size: 20),
+                  onPressed: () => _blockUser(request),
+                  tooltip: 'Block User',
+                ),
+                const Spacer(),
+              ],
+            ),
+            
+            const SizedBox(height: 8),
             
             // Action Buttons
             Row(

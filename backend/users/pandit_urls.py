@@ -16,5 +16,9 @@ urlpatterns = [
     path('dashboard/', pandit_views.pandit_dashboard, name='pandit-dashboard'),
     path('earnings/', pandit_views.pandit_earnings, name='pandit-earnings'),
     path('register/', pandit_registration_views.register_pandit, name='pandit-register'),
+    path('block-user/<int:user_id>/', pandit_views.block_user, name='pandit-block-user'),
+    path('vip-user/<int:user_id>/', pandit_views.vip_user, name='pandit-vip-user'),
+    path('blocked-users/', pandit_views.get_blocked_users, name='pandit-blocked-users'),
+    path('vip-users/', pandit_views.get_vip_users, name='pandit-vip-users'),
 ]
 

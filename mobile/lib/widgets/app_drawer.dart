@@ -11,6 +11,13 @@ import '../screens/features/chat_astrologers_screen.dart';
 import '../screens/features/following_screen.dart';
 import '../screens/features/free_services_screen.dart';
 import '../screens/features/settings_screen.dart';
+import '../screens/features/wall_of_blessings_screen.dart';
+import '../screens/features/remedy_planner_screen.dart';
+import '../screens/bookings/bookings_history_screen.dart';
+import '../screens/referral/referral_screen.dart';
+import '../screens/testimonials/testimonials_screen.dart';
+import '../screens/calendar/calendar_screen.dart';
+import '../screens/favorites/favorites_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -91,6 +98,12 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
+                  Icons.event_note,
+                  'My Bookings',
+                  () => _navigate(context, BookingsHistoryScreen()),
+                ),
+                _buildMenuItem(
+                  context,
                   Icons.light,
                   'Book a Pooja',
                   () => _navigate(context, const BookPoojaScreen()),
@@ -110,6 +123,12 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
+                  Icons.favorite,
+                  'Favorite Astrologers',
+                  () => _navigate(context, const FavoritesScreen()),
+                ),
+                _buildMenuItem(
+                  context,
                   Icons.card_giftcard,
                   'Redeem Gift Card',
                   () => _navigate(context, const GiftCardScreen()),
@@ -125,6 +144,12 @@ class AppDrawer extends StatelessWidget {
                   Icons.shopping_bag,
                   'AstroRemedy',
                   () => _navigate(context, const AstroRemedyScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.healing,
+                  'Remedy Planner',
+                  () => _navigate(context, RemedyPlannerScreen()),
                 ),
                 _buildMenuItem(
                   context,
@@ -149,6 +174,30 @@ class AppDrawer extends StatelessWidget {
                   Icons.card_giftcard_outlined,
                   'Free Services',
                   () => _navigate(context, const FreeServicesScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.favorite_border,
+                  'Wall of Blessings',
+                  () => _navigate(context, const WallOfBlessingsScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.group_add,
+                  'Referral Program',
+                  () => _navigate(context, ReferralScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.reviews,
+                  'Testimonials',
+                  () => _navigate(context, const TestimonialsScreen()),
+                ),
+                _buildMenuItem(
+                  context,
+                  Icons.calendar_today,
+                  'Calendar',
+                  () => _navigate(context, CalendarScreen()),
                 ),
                 _buildMenuItem(
                   context,

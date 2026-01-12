@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../services/daily_horoscope_screen.dart';
+import '../services/free_kundli_screen.dart';
+import '../services/kundli_matching_screen.dart';
+import '../services/palmistry_screen.dart';
+import '../services/tarot_card_screen.dart';
 
 class FreeServicesScreen extends StatelessWidget {
   const FreeServicesScreen({super.key});
@@ -11,21 +16,31 @@ class FreeServicesScreen extends StatelessWidget {
         'title': 'Daily Horoscope',
         'icon': '⭐',
         'description': 'Get your free daily horoscope',
+        'screen': DailyHoroscopeScreen(),
+      },
+      {
+        'title': 'Free Kundli (AI)',
+        'icon': '📜',
+        'description': 'AI-powered free Kundli',
+        'screen': FreeKundliScreen(),
       },
       {
         'title': 'Kundli Matching',
         'icon': '💑',
         'description': 'Free compatibility check',
+        'screen': KundliMatchingScreen(),
       },
       {
-        'title': 'Panchang',
-        'icon': '📅',
-        'description': 'Today\'s auspicious timings',
+        'title': 'Palmistry Reading',
+        'icon': '✋',
+        'description': 'Upload hand photos for free palm reading',
+        'screen': PalmistryScreen(),
       },
       {
-        'title': 'Free Chat (First Time)',
-        'icon': '💬',
-        'description': 'First consultation is FREE!',
+        'title': 'Tarot Card Reading',
+        'icon': '🃏',
+        'description': 'Get free AI-powered tarot card readings',
+        'screen': TarotCardScreen(),
       },
     ];
 
@@ -95,9 +110,13 @@ class FreeServicesScreen extends StatelessWidget {
                       ),
                     ),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Opening ${service['title']}')),
-                      );
+                      final screen = service['screen'] as Widget?;
+                      if (screen != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => screen),
+                        );
+                      }
                     },
                   ),
                 );

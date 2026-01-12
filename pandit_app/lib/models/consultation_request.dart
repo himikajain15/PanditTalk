@@ -16,6 +16,9 @@ class ConsultationRequest {
   final DateTime? acceptedAt;
   final int? userRating;
   final String? userReview;
+  final String? panditNotes;
+  final String? recommendedRemedies;
+  final bool isVIP;
 
   ConsultationRequest({
     required this.id,
@@ -35,6 +38,9 @@ class ConsultationRequest {
     this.acceptedAt,
     this.userRating,
     this.userReview,
+    this.panditNotes,
+    this.recommendedRemedies,
+    this.isVIP = false,
   });
 
   factory ConsultationRequest.fromJson(Map<String, dynamic> json) {
@@ -58,6 +64,9 @@ class ConsultationRequest {
           : null,
       userRating: json['user_rating'],
       userReview: json['user_review'],
+      panditNotes: json['pandit_notes'],
+      recommendedRemedies: json['recommended_remedies'],
+      isVIP: json['is_vip'] ?? false,
     );
   }
 

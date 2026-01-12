@@ -1,5 +1,7 @@
 class Constants {
-  // Using detected gateway IP
+  // For physical device testing, use your computer's IP address
+  // For emulator, use: http://localhost:8000
+  // For localhost testing: http://localhost:8000
   static const String baseUrl = "http://localhost:8000";
 
   // Hero image for Login screen (Panditji photo)

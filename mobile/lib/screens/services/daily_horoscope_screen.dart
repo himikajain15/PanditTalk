@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../utils/theme.dart';
 import '../../services/kundali_service.dart';
+import '../../utils/app_strings.dart';
 
 class DailyHoroscopeScreen extends StatefulWidget {
   @override
@@ -42,12 +44,38 @@ class _DailyHoroscopeScreenState extends State<DailyHoroscopeScreen> {
     });
   }
 
+  Future<void> _shareHoroscope() async {
+    if (horoscopeData == null) return;
+
+    final zodiacName = zodiacSigns.firstWhere((s) => s['value'] == selectedSign)['name'] as String;
+    final message = '''
+🌟 Daily Horoscope for $zodiacName 🌟
+
+${horoscopeData!['description'] ?? ''}
+
+${horoscopeData!['lucky_number'] != null ? 'Lucky Number: ${horoscopeData!['lucky_number']}' : ''}
+${horoscopeData!['lucky_time'] != null ? 'Lucky Time: ${horoscopeData!['lucky_time']}' : ''}
+${horoscopeData!['color'] != null ? 'Lucky Color: ${horoscopeData!['color']}' : ''}
+
+Download PanditTalk app for more astrology insights!
+''';
+
+    await Share.share(message, subject: 'Daily Horoscope - $zodiacName');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daily Horoscope'),
+        title: Text(AppStrings.getString(context, 'dailyHoroscope', fallback: 'Daily Horoscope')),
         backgroundColor: AppTheme.primaryYellow,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: _shareHoroscope,
+            tooltip: AppStrings.getString(context, 'share', fallback: 'Share'),
+          ),
+        ],
       ),
       body: Column(
         children: [

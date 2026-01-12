@@ -56,8 +56,95 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
     } else {
-      _showError(result['error'] ?? 'Invalid OTP');
+      // Check if it's a verification pending error
+      final error = result['error'] ?? 'Invalid OTP';
+      final isVerificationPending = result['verification_pending'] == true;
+      
+      if (isVerificationPending) {
+        // Show a more detailed error message for verification pending
+        _showVerificationPendingError(error);
+      } else {
+        _showError(error);
+      }
     }
+  }
+
+  void _showVerificationPendingError(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.verified_user_outlined, color: AppConstants.primaryYellow),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Verification Pending',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppConstants.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                message,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppConstants.darkGrey,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppConstants.primaryYellow.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: AppConstants.primaryYellow, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'You can login only after your profile is verified by our team.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppConstants.darkGrey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: AppConstants.primaryYellow,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showError(String message) {
@@ -107,14 +194,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 60),
                   
-                  // Logo Section
+                  // Logo Section (same style as user app)
                   Center(
                     child: Column(
                       children: [
-                        // Circular Logo
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: 100,
+                          height: 100,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white,
@@ -137,23 +223,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
                         const Text(
                           'PanditTalk',
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: AppConstants.black,
                             letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Pandit Login',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: AppConstants.darkGrey,
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],

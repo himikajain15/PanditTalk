@@ -2,6 +2,13 @@ from django.db import models
 from django.conf import settings
 from users.models import PanditProfile
 
+# Import all additional models
+from .models_referral import Referral
+from .models_testimonials import Testimonial
+from .models_calendar import CalendarEvent
+from .models_scheduler import LiveSessionSlot
+from .models_ruby import RubyRegistration
+
 # Booking for scheduled consultations
 class Booking(models.Model):
     user = models.ForeignKey(

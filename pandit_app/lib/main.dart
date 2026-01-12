@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'config/constants.dart';
+import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 
@@ -49,7 +50,7 @@ class PanditApp extends StatelessWidget {
           }
           return snapshot.data == true
               ? const DashboardScreen()
-              : const LoginScreen();
+              : const WelcomeScreen();
         },
       ),
     );

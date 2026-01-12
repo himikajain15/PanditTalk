@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, PhoneOTP
+from .models import CustomUser, PhoneOTP, PanditProfile
 from .serializers import UserSerializer
 import logging
 
@@ -171,6 +171,9 @@ def verify_otp(request):
         
         if created:
             user.set_unusable_password()  # No password for OTP-only users
+        
+        # Note: We allow unverified pandits to login so they can complete onboarding
+        # Verification status is checked in the app/dashboard to show appropriate UI
         
         # Generate tokens
         refresh = RefreshToken.for_user(user)

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../config/constants.dart';
 import '../../services/api_service.dart';
 import '../../models/consultation_request.dart';
+import 'consultation_detail_screen.dart';
 
 class RequestsScreen extends StatefulWidget {
   const RequestsScreen({super.key});
@@ -67,6 +68,74 @@ class _RequestsScreenState extends State<RequestsScreen>
           backgroundColor: AppConstants.red,
         ),
       );
+    }
+  }
+
+  Future<void> _toggleVIP(ConsultationRequest request) async {
+    final result = request.isVIP
+        ? await ApiService.removeVIP(request.userId)
+        : await ApiService.markAsVIP(request.userId);
+    
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            request.isVIP 
+                ? 'VIP status removed' 
+                : 'User marked as VIP (will appear first in requests)',
+          ),
+          backgroundColor: AppConstants.orange,
+        ),
+      );
+      _loadRequests();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${result['error']}'),
+          backgroundColor: AppConstants.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _blockUser(ConsultationRequest request) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Block User'),
+        content: Text('Are you sure you want to block ${request.userName}? They will not be able to send you consultation requests.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppConstants.red),
+            child: const Text('Block'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await ApiService.blockUser(request.userId);
+      if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${request.userName} has been blocked'),
+            backgroundColor: AppConstants.red,
+          ),
+        );
+        _loadRequests();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${result['error']}'),
+            backgroundColor: AppConstants.red,
+          ),
+        );
+      }
     }
   }
 
@@ -176,15 +245,48 @@ class _RequestsScreenState extends State<RequestsScreen>
       );
     }
 
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+
+    final todayList = <ConsultationRequest>[];
+    final upcomingList = <ConsultationRequest>[];
+
+    for (final r in _activeRequests) {
+      final d = r.createdAt;
+      final dateOnly = DateTime(d.year, d.month, d.day);
+      if (dateOnly == todayDate) {
+        todayList.add(r);
+      } else if (dateOnly.isAfter(todayDate)) {
+        upcomingList.add(r);
+      } else {
+        // Older than today, still active – treat as today for now
+        todayList.add(r);
+      }
+    }
+
     return RefreshIndicator(
       onRefresh: _loadRequests,
-      child: ListView.builder(
+      child: ListView(
         padding: const EdgeInsets.all(AppConstants.paddingMedium),
-        itemCount: _activeRequests.length,
-        itemBuilder: (context, index) {
-          final request = _activeRequests[index];
-          return _buildRequestCard(request, isPending: false);
-        },
+        children: [
+          if (todayList.isNotEmpty) ...[
+            const Text(
+              "Today's Queue",
+              style: AppConstants.subheadingStyle,
+            ),
+            const SizedBox(height: 8),
+            ...todayList.map((r) => _buildRequestCard(r, isPending: false)),
+            const SizedBox(height: 16),
+          ],
+          if (upcomingList.isNotEmpty) ...[
+            const Text(
+              'Upcoming',
+              style: AppConstants.subheadingStyle,
+            ),
+            const SizedBox(height: 8),
+            ...upcomingList.map((r) => _buildRequestCard(r, isPending: false)),
+          ],
+        ],
       ),
     );
   }
@@ -200,11 +302,21 @@ class _RequestsScreenState extends State<RequestsScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ConsultationDetailScreen(request: request),
+            ),
+          ).then((_) => _loadRequests());
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.paddingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Header
             Row(
               children: [
@@ -248,21 +360,49 @@ class _RequestsScreenState extends State<RequestsScreen>
                     ],
                   ),
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(request.status),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    request.statusDisplay,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppConstants.white,
+                Row(
+                  children: [
+                    if (request.isVIP)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.only(right: 6),
+                        decoration: BoxDecoration(
+                          color: AppConstants.orange,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, size: 14, color: AppConstants.white),
+                            SizedBox(width: 2),
+                            Text(
+                              'VIP',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppConstants.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(request.status),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        request.statusDisplay,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.white,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -336,25 +476,26 @@ class _RequestsScreenState extends State<RequestsScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total Amount',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppConstants.grey,
+                if (!isPending)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Total Amount',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppConstants.grey,
+                        ),
                       ),
-                    ),
-                    Text(
-                      currencyFormat.format(request.amount),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        currencyFormat.format(request.amount),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -386,7 +527,31 @@ class _RequestsScreenState extends State<RequestsScreen>
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // Block/VIP Actions Row (only for pending requests)
+            if (isPending)
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      request.isVIP ? Icons.star : Icons.star_border,
+                      color: request.isVIP ? AppConstants.orange : AppConstants.grey,
+                      size: 20,
+                    ),
+                    onPressed: () => _toggleVIP(request),
+                    tooltip: request.isVIP ? 'Remove VIP' : 'Mark as VIP',
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.block, color: AppConstants.red, size: 20),
+                    onPressed: () => _blockUser(request),
+                    tooltip: 'Block User',
+                  ),
+                  const Spacer(),
+                ],
+              ),
+
+            if (isPending) const SizedBox(height: 8),
 
             // Action Buttons
             if (isPending)
@@ -443,7 +608,8 @@ class _RequestsScreenState extends State<RequestsScreen>
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

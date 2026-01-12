@@ -76,28 +76,23 @@ echo Setting up USB port forwarding (bypasses WiFi issues)...
 echo ✓ Port forwarding active
 echo.
 
-echo [5/5] Launching Pandit App on Phone...
+echo [5/5] Launching Pandit App on Phone with HOT RELOAD...
 echo.
 echo ⚠️  IMPORTANT:
-echo    Phone and computer must be on SAME WiFi
-echo    Backend URL: http://%IP%:8000
+echo    - Keep this window OPEN while you are developing.
+echo    - After you change any Dart code, just SAVE the file.
+echo    - Flutter will HOT RELOAD your running app automatically.
+echo      (Press "r" here for hot reload, "R" for hot restart if needed.)
 echo.
-echo This will take 2-3 minutes...
-echo Please wait, do NOT close this window!
+echo Phone and computer should be on SAME WiFi.
+echo Backend URL: http://%IP%:8000
+echo.
+echo First launch may take a few minutes. Later code changes are fast.
 echo.
 
 cd pandit_app
 
-echo Cleaning build cache...
-call flutter clean
-
-echo.
-echo Getting dependencies...
-call flutter pub get
-
-echo.
 echo Building and launching app on your phone...
-echo (This takes time, please be patient)
 echo.
 call flutter run --debug
 

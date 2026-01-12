@@ -5,6 +5,7 @@ import '../../utils/theme.dart';
 import '../../providers/booking_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../models/booking.dart';
+import '../../services/engagement_service.dart';
 
 class BookingsHistoryScreen extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class BookingsHistoryScreen extends StatefulWidget {
 class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
   List<Booking> _bookings = [];
   bool _loading = true;
+  final EngagementService _engagement = EngagementService();
 
   @override
   void initState() {
@@ -214,6 +216,20 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
                 ],
               ),
             ],
+            if (booking.status.toLowerCase() == 'completed') ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => _showFeedbackSheet(booking),
+                  icon: const Icon(Icons.thumb_up_alt_outlined, size: 16),
+                  label: const Text('Give Feedback'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.primaryYellow,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -245,6 +261,127 @@ class _BookingsHistoryScreenState extends State<BookingsHistoryScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _showFeedbackSheet(Booking booking) async {
+    double rating = 4;
+    String comment = '';
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'How was this consultation?',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Did this consultation help you?',
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: List.generate(5, (index) {
+                        final filled = index < rating.round();
+                        return IconButton(
+                          icon: Icon(
+                            filled ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                          ),
+                          onPressed: () {
+                            setState(() => rating = (index + 1).toDouble());
+                          },
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        hintText: 'Optional: What went well or what can we improve?',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (v) => comment = v,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _submitFeedback(booking, rating, comment);
+                          if (mounted) Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryYellow,
+                          foregroundColor: AppTheme.black,
+                        ),
+                        child: const Text(
+                          'Submit Feedback',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _submitFeedback(Booking booking, double rating, String comment) async {
+    try {
+      final userProv = Provider.of<UserProvider>(context, listen: false);
+      final token = await userProv.auth.getToken();
+      await _engagement.logEvent('booking_feedback', {
+        'booking_id': booking.id,
+        'status': booking.status,
+        'rating': rating,
+        'comment': comment,
+      }, token: token);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Thank you for your feedback!')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not submit feedback. Please try again.')),
+        );
+      }
+    }
   }
 }
 

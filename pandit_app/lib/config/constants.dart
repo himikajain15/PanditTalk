@@ -6,11 +6,15 @@ class AppConstants {
   // Using localhost with USB reverse forwarding
   // adb reverse tcp:8000 tcp:8000 forwards phone's localhost:8000 to PC's localhost:8000
   static const String baseUrl = 'http://localhost:8000/api';
+
+  // Demo mode (for development preview without real data)
+  static const bool useDemoData = true;
   
   // API Endpoints
   static const String loginEndpoint = '/auth/login/';
   static const String sendOtpEndpoint = '/auth/send-otp/';
   static const String verifyOtpEndpoint = '/auth/verify-otp/';
+  static const String registerPanditEndpoint = '/pandit/register/';
   static const String profileEndpoint = '/pandit/profile/me/';
   static const String dashboardEndpoint = '/pandit/dashboard/';
   static const String updateAvailabilityEndpoint = '/pandit/profile/update_availability/';

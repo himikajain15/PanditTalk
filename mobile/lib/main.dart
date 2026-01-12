@@ -4,6 +4,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'providers/user_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/language_provider.dart';
+import 'providers/referral_provider.dart';
+import 'providers/calendar_provider.dart';
+import 'providers/notification_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -17,6 +20,10 @@ import 'screens/wallet/wallet_screen.dart';
 import 'screens/bookings/bookings_history_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/call/live_pandits_screen.dart';
+import 'screens/calendar/calendar_screen.dart';
+import 'screens/referral/referral_screen.dart';
+import 'screens/testimonials/testimonials_screen.dart';
+import 'screens/freebie/ruby_registration_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +40,9 @@ class PandittalkApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (_) => ReferralProvider()),
+        ChangeNotifierProvider(create: (_) => CalendarProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: Consumer<LanguageProvider>(
         builder: (context, langProvider, _) {
@@ -61,6 +71,10 @@ class PandittalkApp extends StatelessWidget {
           '/bookings': (ctx) => BookingsHistoryScreen(),
           '/settings': (ctx) => SettingsScreen(),
           '/live-pandits': (ctx) => LivePanditsScreen(),
+          '/calendar': (ctx) => CalendarScreen(),
+          '/referral': (ctx) => ReferralScreen(),
+          '/testimonials': (ctx) => TestimonialsScreen(),
+          '/ruby-registration': (ctx) => const RubyRegistrationScreen(),
         },
           );
         },
@@ -98,7 +112,7 @@ class _EntryDeciderState extends State<EntryDecider> {
   @override
   Widget build(BuildContext context) {
     if (_isInitializing) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -106,11 +120,8 @@ class _EntryDeciderState extends State<EntryDecider> {
     final userProv = Provider.of<UserProvider>(context, listen: true);
     final screen = userProv.isAuthenticated ? HomeScreen() : LoginScreen();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Pandittalk"),
-      ),
-      body: screen,
-    );
+    // HomeScreen and LoginScreen already provide their own layouts,
+    // so we return them directly without an extra header.
+    return screen;
   }
 }

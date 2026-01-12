@@ -51,7 +51,7 @@ class ApiService {
     }
   }
 
-  Future<dynamic> post(String endpoint, Map<String, dynamic> body, {String? token}) async {
+  Future<dynamic> post(String endpoint, Map<String, dynamic> body, {String? token, Duration? timeout}) async {
     final url = Uri.parse('$_baseUrl$endpoint');
     try {
       final headers = {
@@ -61,10 +61,11 @@ class ApiService {
       };
 
       debugPrint('📤 POST ${url.toString()}');
+      final timeoutDuration = timeout ?? const Duration(seconds: 10);
       final response = await http.post(url, headers: headers, body: jsonEncode(body)).timeout(
-        const Duration(seconds: 10),
+        timeoutDuration,
         onTimeout: () {
-          throw Exception('Request timeout - is the backend server running on $_baseUrl?');
+          throw Exception('Request timeout after ${timeoutDuration.inSeconds}s - is the backend server running on $_baseUrl?');
         },
       );
       return _handleResponse(response);

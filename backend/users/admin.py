@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, PhoneOTP, PanditProfile, ConsultationRequest, PanditPayout, PanditReview
+from .models import CustomUser, PhoneOTP, PanditProfile, ConsultationRequest, PanditPayout, PanditReview, BlockedUser, VIPUser
 
 
 @admin.register(CustomUser)
@@ -114,4 +114,22 @@ class PanditReviewAdmin(admin.ModelAdmin):
     list_filter = ('rating', 'created_at')
     search_fields = ('pandit__username', 'user__username', 'review_text')
     readonly_fields = ('created_at',)
+
+
+@admin.register(BlockedUser)
+class BlockedUserAdmin(admin.ModelAdmin):
+    """Admin interface for BlockedUser"""
+    list_display = ('id', 'pandit', 'blocked_user', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('pandit__username', 'blocked_user__username', 'reason')
+    readonly_fields = ('created_at',)
+
+
+@admin.register(VIPUser)
+class VIPUserAdmin(admin.ModelAdmin):
+    """Admin interface for VIPUser"""
+    list_display = ('id', 'pandit', 'vip_user', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('pandit__username', 'vip_user__username', 'notes')
+    readonly_fields = ('created_at', 'updated_at')
 

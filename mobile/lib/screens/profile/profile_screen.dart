@@ -8,6 +8,7 @@ import '../bookings/bookings_history_screen.dart';
 import '../settings/settings_screen.dart';
 import 'rate_us_screen.dart';
 import 'help_support_screen.dart';
+import '../../utils/app_strings.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
@@ -17,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile"),
+        title: Text(AppStrings.getString(context, 'profile', fallback: 'Profile')),
         backgroundColor: AppTheme.primaryYellow,
         automaticallyImplyLeading: true,
         leading: IconButton(
@@ -32,11 +33,14 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.person_off, size: 64, color: AppTheme.mediumGray),
                   const SizedBox(height: 16),
-                  Text("Not logged in", style: TextStyle(fontSize: 18, color: AppTheme.mediumGray)),
+                  Text(
+                    AppStrings.getString(context, 'notLoggedIn', fallback: 'Not logged in'),
+                    style: TextStyle(fontSize: 18, color: AppTheme.mediumGray),
+                  ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                    child: Text("Login"),
+                    child: Text(AppStrings.getString(context, 'login', fallback: 'Login')),
                   ),
                 ],
               ),
@@ -103,43 +107,43 @@ class ProfileScreen extends StatelessWidget {
                   _buildMenuItem(
                     context,
                     icon: Icons.account_balance_wallet,
-                    title: "My Wallet",
-                    subtitle: "Add money, view transactions",
+                    title: AppStrings.getString(context, 'myWallet', fallback: 'My Wallet'),
+                    subtitle: AppStrings.getString(context, 'addMoneyViewTransactions', fallback: 'Add money, view transactions'),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WalletScreen())),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.history,
-                    title: "Booking History",
-                    subtitle: "View all your bookings",
+                    title: AppStrings.getString(context, 'bookingHistory', fallback: 'Booking History'),
+                    subtitle: AppStrings.getString(context, 'viewAllYourBookings', fallback: 'View all your bookings'),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookingsHistoryScreen())),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.edit,
-                    title: "Edit Profile",
-                    subtitle: "Update your information",
+                    title: AppStrings.getString(context, 'editProfile', fallback: 'Edit Profile'),
+                    subtitle: AppStrings.getString(context, 'updateYourInformation', fallback: 'Update your information'),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen())),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.settings,
-                    title: "Settings",
-                    subtitle: "Notifications, privacy & more",
+                    title: AppStrings.getString(context, 'settings', fallback: 'Settings'),
+                    subtitle: AppStrings.getString(context, 'notificationsPrivacyMore', fallback: 'Notifications, privacy & more'),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsScreen())),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.help_outline,
-                    title: "Help & Support",
-                    subtitle: "Get help with your account",
+                    title: AppStrings.getString(context, 'helpSupport', fallback: 'Help & Support'),
+                    subtitle: AppStrings.getString(context, 'getHelpWithYourAccount', fallback: 'Get help with your account'),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HelpSupportScreen())),
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.star_rate,
-                    title: "Rate Us",
-                    subtitle: "Share your feedback",
+                    title: AppStrings.getString(context, 'rateUs', fallback: 'Rate Us'),
+                    subtitle: AppStrings.getString(context, 'shareYourFeedback', fallback: 'Share your feedback'),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RateUsScreen())),
                   ),
                   const SizedBox(height: 16),
@@ -150,7 +154,7 @@ class ProfileScreen extends StatelessWidget {
                         _showLogoutDialog(context, userProv);
                       },
                     icon: Icon(Icons.logout),
-                    label: Text("Logout"),
+                    label: Text(AppStrings.getString(context, 'logout', fallback: 'Logout')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
@@ -195,12 +199,12 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text("Logout"),
-        content: Text("Are you sure you want to logout?"),
+        title: Text(AppStrings.getString(context, 'logout', fallback: 'Logout')),
+        content: Text(AppStrings.getString(context, 'areYouSureLogout', fallback: 'Are you sure you want to logout?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text("Cancel"),
+            child: Text(AppStrings.getString(context, 'cancel', fallback: 'Cancel')),
           ),
           ElevatedButton(
             onPressed: () {
@@ -209,7 +213,7 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.pushReplacementNamed(context, '/login');
                     },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text("Logout"),
+            child: Text(AppStrings.getString(context, 'logout', fallback: 'Logout')),
           ),
                 ],
       ),

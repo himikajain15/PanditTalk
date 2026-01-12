@@ -43,6 +43,16 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         backgroundColor: AppTheme.primaryYellow,
         actions: [
           IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Check Help & Support in Profile for FAQs.'),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.call),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(

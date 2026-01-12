@@ -31,6 +31,7 @@ if not exist constants.dart.backup (
 REM Use localhost which will be forwarded via USB reverse
 powershell -Command "(Get-Content constants.dart) -replace 'http://10\.0\.2\.2:8000', 'http://localhost:8000' | Set-Content constants.dart"
 powershell -Command "(Get-Content constants.dart) -replace 'http://172\.\d+\.\d+\.\d+:8000', 'http://localhost:8000' | Set-Content constants.dart"
+powershell -Command "(Get-Content constants.dart) -replace 'http://10\.\d+\.\d+\.\d+:8000', 'http://localhost:8000' | Set-Content constants.dart"
 
 cd ..\..\..
 

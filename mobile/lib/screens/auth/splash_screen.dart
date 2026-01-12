@@ -14,9 +14,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late AnimationController _fadeController;
-  late AnimationController _rotateController;
   late Animation<double> _fadeIn;
 
   @override
@@ -31,11 +30,6 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
     _fadeController.forward();
 
-    // Continuous rotation animation for the logo
-    _rotateController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 5))
-          ..repeat();
-
     // Navigate to main route after delay
     Timer(widget.duration, () {
       Navigator.of(context).pushReplacementNamed('/');
@@ -45,7 +39,6 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _fadeController.dispose();
-    _rotateController.dispose();
     super.dispose();
   }
 
@@ -67,32 +60,27 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                RotationTransition(
-                  turns:
-                      Tween(begin: 0.0, end: 1.0).animate(_rotateController),
-                  child: Container(
-                    width: 120,
-                    height: 120,
+                Container(
+                  width: 140,
+                  height: 140,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                          colors: [AppTheme.saffron , AppTheme.deepSaffron!]),
+                      colors: [AppTheme.saffron, AppTheme.deepSaffron!],
+                    ),
                       boxShadow: const [
                         BoxShadow(
                             color: Colors.black26,
                             blurRadius: 10,
-                            offset: Offset(0, 5))
+                        offset: Offset(0, 5),
+                      ),
                       ],
                     ),
-                    child: const Center(
-                      child: Text(
-                        "ॐ",
-                        style: TextStyle(
-                          fontSize: 52,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),

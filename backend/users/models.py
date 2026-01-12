@@ -136,6 +136,10 @@ class ConsultationRequest(models.Model):
     # Feedback
     user_rating = models.IntegerField(null=True, blank=True)  # 1-5
     user_review = models.TextField(blank=True)
+
+    # Pandit-side notes & remedies
+    pandit_notes = models.TextField(blank=True)
+    recommended_remedies = models.TextField(blank=True)
     
     def save(self, *args, **kwargs):
         # Calculate commission and pandit earnings
@@ -206,3 +210,38 @@ class PanditReview(models.Model):
         verbose_name = "Pandit Review"
         verbose_name_plural = "Pandit Reviews"
         ordering = ['-created_at']
+
+
+class BlockedUser(models.Model):
+    """Users blocked by a pandit"""
+    pandit = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='blocked_users')
+    blocked_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='blocked_by_pandits')
+    reason = models.TextField(blank=True)  # Optional reason for blocking
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['pandit', 'blocked_user']
+        verbose_name = "Blocked User"
+        verbose_name_plural = "Blocked Users"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.pandit.username} blocked {self.blocked_user.username}"
+
+
+class VIPUser(models.Model):
+    """Users marked as VIP by a pandit (priority clients)"""
+    pandit = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='vip_users')
+    vip_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='vip_for_pandits')
+    notes = models.TextField(blank=True)  # Optional notes about why they're VIP
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['pandit', 'vip_user']
+        verbose_name = "VIP User"
+        verbose_name_plural = "VIP Users"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.vip_user.username} is VIP for {self.pandit.username}"

@@ -1,21 +1,31 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
-import '../../providers/user_provider.dart';
+import '../../models/pandit.dart';
 import '../../providers/booking_provider.dart';
 import '../../providers/language_provider.dart';
-import '../../models/pandit.dart';
-import '../chat/chat_list_screen.dart';
-import '../call/call_screen.dart';
-import '../profile/profile_screen.dart';
-import '../booking/booking_screen.dart';
+import '../../providers/user_provider.dart';
+import '../../utils/app_strings.dart';
+import '../../utils/theme.dart';
 import '../../widgets/app_drawer.dart';
+import '../../widgets/personalized_dashboard.dart';
+import '../booking/booking_screen.dart';
+import '../call/call_screen.dart';
+import '../calendar/calendar_screen.dart';
+import '../chat/chat_list_screen.dart';
+import '../consultation/pandits_list_screen.dart';
+import '../payments/payment_screen.dart';
+import '../profile/profile_screen.dart';
+import '../referral/referral_screen.dart';
+import '../services/astrology_blog_screen.dart';
 import '../services/daily_horoscope_screen.dart';
 import '../services/free_kundli_screen.dart';
 import '../services/kundli_matching_screen.dart';
-import '../services/astrology_blog_screen.dart';
-import '../payments/payment_screen.dart';
-import '../consultation/pandits_list_screen.dart';
+import '../services/palmistry_screen.dart';
+import '../services/tarot_card_screen.dart';
+import '../testimonials/testimonials_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -28,11 +38,43 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Pandit> _livePandits = [];
   List<Pandit> _celebrityPandits = [];
   bool _loading = true;
+  int _streakDays = 0;
+  DateTime? _lastCheckIn;
+
+  late final PageController _promoPageController;
+  int _currentPromoIndex = 0;
+  Timer? _promoTimer;
 
   @override
   void initState() {
     super.initState();
+    _promoPageController = PageController();
+    _startPromoAutoScroll();
     _loadPandits();
+    _loadStreak();
+  }
+
+  @override
+  void dispose() {
+    _promoTimer?.cancel();
+    _promoPageController.dispose();
+    super.dispose();
+  }
+
+  void _startPromoAutoScroll() {
+    _promoTimer?.cancel();
+    _promoTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!mounted) return;
+      final nextPage = (_currentPromoIndex + 1) % 2;
+      setState(() {
+        _currentPromoIndex = nextPage;
+      });
+      _promoPageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   Future<void> _loadPandits() async {
@@ -45,6 +87,59 @@ class _HomeScreenState extends State<HomeScreen> {
       _loading = false;
     });
   }
+
+  Future<void> _loadStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getString('daily_checkin_date');
+    final streak = prefs.getInt('daily_checkin_streak') ?? 0;
+    DateTime? lastDate;
+    if (last != null) {
+      try {
+        lastDate = DateTime.parse(last);
+      } catch (_) {}
+    }
+    setState(() {
+      _lastCheckIn = lastDate;
+      _streakDays = streak;
+    });
+  }
+
+  Future<void> _checkInToday() async {
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final last = _lastCheckIn != null
+        ? DateTime(_lastCheckIn!.year, _lastCheckIn!.month, _lastCheckIn!.day)
+        : null;
+
+    int newStreak;
+    if (last == null) {
+      newStreak = 1;
+    } else if (todayDate.difference(last).inDays == 0) {
+      // already checked in today
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You already checked in today!')),
+      );
+      return;
+    } else if (todayDate.difference(last).inDays == 1) {
+      newStreak = _streakDays + 1;
+    } else {
+      newStreak = 1;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('daily_checkin_date', todayDate.toIso8601String());
+    await prefs.setInt('daily_checkin_streak', newStreak);
+
+    setState(() {
+      _lastCheckIn = todayDate;
+      _streakDays = newStreak;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Checked in! Current streak: $newStreak days')),
+    );
+  }
+
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
@@ -84,15 +179,21 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Header
               _buildHeader(user, context),
-              
+
               // Search Bar
               _buildSearchBar(),
+
+              // Promo carousel (Freebie + Cashback)
+              _buildPromoCarousel(),
+
+              // Personalized Dashboard (Your Day)
+              PersonalizedDashboard(userZodiacSign: 'aries'), // TODO: Get from user profile
+              
+              // Daily Check-in / Streaks
+              _buildDailyCheckInCard(),
               
               // Quick Action Icons
               _buildQuickActions(),
-              
-              // Cashback Banner
-              _buildCashbackBanner(),
               
               // Celebrity Section
               if (!_loading && _celebrityPandits.isNotEmpty)
@@ -116,112 +217,156 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildDailyCheckInCard() {
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final checkedInToday = _lastCheckIn != null &&
+        DateTime(_lastCheckIn!.year, _lastCheckIn!.month, _lastCheckIn!.day)
+                .difference(todayDate)
+                .inDays ==
+            0;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryYellow.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(child: Text('🔥', style: TextStyle(fontSize: 22))),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Daily Check-in',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.black,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  checkedInToday
+                      ? 'You’ve checked in today. Current streak: $_streakDays days.'
+                      : 'Tap to check-in and grow your streak! Current streak: $_streakDays days.',
+                  style: TextStyle(fontSize: 12, color: AppTheme.mediumGray),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: checkedInToday ? null : _checkInToday,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryYellow,
+              foregroundColor: AppTheme.black,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: Text(
+              checkedInToday ? 'Done' : 'Check-in',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildHeader(user, BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: AppTheme.white,
-      child: Column(
+      child: Row(
         children: [
-          // Top row: Profile, Name, Actions
-          Row(
-            children: [
-              // Hamburger menu with profile pic
-              InkWell(
-                onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppTheme.primaryYellow,
-                      child: Text(
-                        user?.username?[0].toUpperCase() ?? 'U',
-                        style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: AppTheme.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.menu, size: 11, color: AppTheme.black),
-                      ),
-                    ),
-                  ],
+          // Hamburger menu with profile pic
+          InkWell(
+            onTap: () => _scaffoldKey.currentState?.openDrawer(),
+            child: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppTheme.primaryYellow,
+                  child: Text(
+                    user?.username?[0].toUpperCase() ?? 'U',
+                    style: TextStyle(color: AppTheme.black, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hi ${user?.username ?? 'User'}',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.white,
+                      shape: BoxShape.circle,
                     ),
-                  ],
+                    child: Icon(Icons.menu, size: 11, color: AppTheme.black),
+                  ),
                 ),
-              ),
-              // Language Selector
-              _buildLanguageSelector(context),
-              SizedBox(width: 8),
-              // Support Icon
-              IconButton(
-                icon: Icon(Icons.support_agent, color: AppTheme.primaryYellow),
-                onPressed: () {},
-                iconSize: 22,
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(),
-              ),
-            ],
+              ],
+            ),
           ),
-          SizedBox(height: 8),
-          // Bottom row: Add Cash Button (full width)
-          SizedBox(
-            width: double.infinity,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppTheme.primaryYellow,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryYellow.withOpacity(0.3),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
+          SizedBox(width: 12),
+          // Greeting
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppStrings.getStringWithParam(
+                    context,
+                    'hi',
+                    {'name': user?.username ?? 'User'},
+                    fallback: 'Hi ${user?.username ?? 'User'}',
                   ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => _showRechargeDialog(context),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.account_balance_wallet, size: 18, color: AppTheme.black),
-                        SizedBox(width: 8),
-                        Text(
-                          'Add Cash to Wallet',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8),
+          // Language selector (compact)
+          _buildLanguageSelector(context),
+          SizedBox(width: 8),
+          // Small Add Cash button
+          TextButton.icon(
+            onPressed: () => _showRechargeDialog(context),
+            style: TextButton.styleFrom(
+              backgroundColor: AppTheme.primaryYellow,
+              foregroundColor: AppTheme.black,
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: Size(0, 0),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            icon: Icon(Icons.account_balance_wallet, size: 16),
+            label: Text(
+              AppStrings.getString(context, 'addCash', fallback: 'Add Cash'),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -248,7 +393,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(currentLangData['flag']!, style: TextStyle(fontSize: 16)),
+                Text(
+                  (currentLangData['code'] ?? currentLang).toUpperCase(),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.black),
+                ),
                 SizedBox(width: 4),
                 Icon(Icons.arrow_drop_down, size: 16, color: AppTheme.black),
               ],
@@ -263,8 +411,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: lang['code'],
                 child: Row(
                   children: [
-                    Text(lang['flag']!, style: TextStyle(fontSize: 20)),
-                    SizedBox(width: 12),
+                    Text(
+                      lang['code']!.toUpperCase(),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 8),
                     Text(lang['name']!),
                     if (lang['code'] == currentLang)
                       Spacer(),
@@ -400,29 +551,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      margin: EdgeInsets.all(16),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.search, color: AppTheme.mediumGray),
-          SizedBox(width: 12),
-          Text(
-            'Search astrologers...',
-            style: TextStyle(color: AppTheme.mediumGray, fontSize: 15),
-          ),
-        ],
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/pandits'),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppTheme.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: AppTheme.mediumGray),
+            SizedBox(width: 12),
+            Text(
+              AppStrings.getString(context, 'searchAstrologers', fallback: 'Search astrologers...'),
+              style: TextStyle(color: AppTheme.mediumGray, fontSize: 15),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -431,23 +586,33 @@ class _HomeScreenState extends State<HomeScreen> {
     final actions = [
       {
         'icon': Icons.wb_sunny,
-        'label': 'Daily\nHoroscope',
+        'labelKey': 'dailyHoroscopeLabel',
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => DailyHoroscopeScreen())),
       },
       {
         'icon': Icons.auto_graph,
-        'label': 'Free\nKundli',
+        'labelKey': 'freeKundliLabel',
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => FreeKundliScreen())),
       },
       {
         'icon': Icons.favorite,
-        'label': 'Kundli\nMatching',
+        'labelKey': 'kundliMatchingLabel',
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => KundliMatchingScreen())),
       },
       {
         'icon': Icons.article,
-        'label': 'Astrology\nBlog',
+        'labelKey': 'astrologyBlogLabel',
         'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => AstrologyBlogScreen())),
+      },
+      {
+        'icon': Icons.pan_tool,
+        'labelKey': 'palmistryLabel',
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => PalmistryScreen())),
+      },
+      {
+        'icon': Icons.style,
+        'labelKey': 'tarotLabel',
+        'onTap': () => Navigator.push(context, MaterialPageRoute(builder: (_) => TarotCardScreen())),
       },
     ];
 
@@ -473,7 +638,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(height: 6),
                 Text(
-                  action['label'] as String,
+                  AppStrings.getString(
+                    context,
+                    action['labelKey'] as String,
+                    fallback: '',
+                  ),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 11, height: 1.2),
                 ),
@@ -484,6 +653,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   Widget _buildCashbackBanner() {
     return Container(
@@ -504,65 +674,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                  '100% CASHBACK!',
+                            AppStrings.getString(context, 'cashback100', fallback: '100% CASHBACK!'),
                             style: TextStyle(
-                    color: Colors.white,
+                              color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                  ),
-                ),
+                            ),
+                          ),
                 SizedBox(height: 4),
                 Text(
-                  'on your first recharge',
+                  AppStrings.getString(context, 'onYourFirstRecharge', fallback: 'on your first recharge'),
                   style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
                 SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () {
-                    // Navigate to payment screen with wallet recharge
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: Text('Add Money to Wallet'),
-                        content: TextField(
-                          decoration: InputDecoration(
-                            labelText: 'Enter Amount',
-                            prefixText: '₹',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          onSubmitted: (value) {
-                            final amount = double.tryParse(value);
-                            if (amount != null && amount > 0) {
-                              Navigator.pop(ctx);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PaymentScreen(
-                                    bookingId: 0, // 0 indicates wallet recharge
-                                    amount: amount,
-                                    isWalletRecharge: true,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: Text('Cancel'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  onPressed: () => _showRechargeDialog(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryYellow,
                     foregroundColor: AppTheme.black,
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                   ),
-                  child: Text('RECHARGE NOW', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    AppStrings.getString(context, 'rechargeNow', fallback: 'RECHARGE NOW'),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -570,6 +705,115 @@ class _HomeScreenState extends State<HomeScreen> {
           Text('💰', style: TextStyle(fontSize: 60)),
         ],
       ),
+    );
+  }
+
+  Widget _buildFreebieBanner() {
+    return Container(
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppStrings.getString(context, 'registerForFreebie', fallback: 'Register for Freebie'),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.black),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  AppStrings.getString(context, 'first1000UsersGetFreebie', fallback: 'First 1000 users get a freebie!'),
+                  style: TextStyle(fontSize: 13, color: AppTheme.mediumGray),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  AppStrings.getString(context, 'loginAndRegisterNow', fallback: 'Login and register now to claim your welcome gift before the slots run out.'),
+                  style: TextStyle(fontSize: 12, color: AppTheme.mediumGray),
+                ),
+                SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/ruby-registration'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryYellow,
+                    foregroundColor: AppTheme.black,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                  child: Text(
+                    AppStrings.getString(context, 'registerNow', fallback: 'Register Now'),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 12),
+          Text('🎁', style: TextStyle(fontSize: 42)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromoCarousel() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 220,
+          child: PageView(
+            controller: _promoPageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPromoIndex = index;
+              });
+            },
+            children: [
+              _buildFreebieBanner(),
+              _buildCashbackBanner(),
+            ],
+          ),
+        ),
+        SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(2, (index) {
+            final isActive = index == _currentPromoIndex;
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _currentPromoIndex = index;
+                });
+                _promoPageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              child: Container(
+                width: isActive ? 10 : 6,
+                height: isActive ? 10 : 6,
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: isActive ? AppTheme.primaryYellow : AppTheme.mediumGray.withOpacity(0.4),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 
@@ -582,13 +826,16 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-                      Text(
-                'Celebrity Astrologers',
+              Text(
+                AppStrings.getString(context, 'celebrityAstrologers', fallback: 'Celebrity Astrologers'),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/pandits'),
-                child: Text('View All', style: TextStyle(color: AppTheme.primaryYellow)),
+                child: Text(
+                  AppStrings.getString(context, 'viewAll', fallback: 'View All'),
+                  style: TextStyle(color: AppTheme.primaryYellow),
+                ),
               ),
             ],
           ),
@@ -648,7 +895,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '⭐ Celebrity',
+                      AppStrings.getString(context, 'celebrity', fallback: '⭐ Celebrity'),
                       style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.black),
                     ),
                   ),
@@ -692,7 +939,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       minimumSize: Size.fromHeight(36),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: Text('Chat Now • ₹${pandit.feePerMinute}/min', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      '${AppStrings.getString(context, "chatNow", fallback: "Chat Now")} • ₹${pandit.feePerMinute}${AppStrings.getString(context, "perMinute", fallback: "/min")}',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ],
               ),
@@ -728,13 +978,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(width: 8),
               Text(
-                '${_livePandits.length} Astrologers Live',
+                AppStrings.getStringWithParam(
+                  context,
+                  'astrologersLive',
+                  {'count': _livePandits.length.toString()},
+                  fallback: '${_livePandits.length} Astrologers Live',
+                ),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Spacer(),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/pandits'),
-                child: Text('View All', style: TextStyle(color: AppTheme.primaryYellow)),
+                child: Text(
+                  AppStrings.getString(context, 'viewAll', fallback: 'View All'),
+                  style: TextStyle(color: AppTheme.primaryYellow),
+                ),
               ),
             ],
           ),
@@ -869,12 +1127,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ElevatedButton.icon(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatListScreen())),
               icon: Icon(Icons.chat_bubble),
-              label: Text('Chat with Astrologer'),
+              label: Text(
+                AppStrings.getString(context, 'chatWithAstrologer', fallback: 'Chat with Astrologer'),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryYellow,
                 foregroundColor: AppTheme.black,
-                padding: EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               ),
             ),
           ),
@@ -883,12 +1143,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ElevatedButton.icon(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CallScreen())),
               icon: Icon(Icons.call),
-              label: Text('Call with Astrologer'),
+              label: Text(
+                AppStrings.getString(context, 'callWithAstrologer', fallback: 'Call with Astrologer'),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryYellow,
                 foregroundColor: AppTheme.black,
-                padding: EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               ),
             ),
           ),
@@ -913,10 +1175,22 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppTheme.white,
       elevation: 8,
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-        BottomNavigationBarItem(icon: Icon(Icons.call), label: 'Call'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: AppStrings.getString(context, 'home', fallback: 'Home'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble_outline),
+          label: AppStrings.getString(context, 'chat', fallback: 'Chat'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.call),
+          label: AppStrings.getString(context, 'call', fallback: 'Call'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: AppStrings.getString(context, 'profile', fallback: 'Profile'),
+        ),
       ],
     );
   }

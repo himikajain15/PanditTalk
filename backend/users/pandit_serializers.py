@@ -44,7 +44,8 @@ class ConsultationRequestSerializer(serializers.ModelSerializer):
             'service_type', 'duration', 'user_query', 'birth_details',
             'amount', 'commission_percentage', 'commission_amount', 'pandit_earnings', 'payment_status',
             'status', 'created_at', 'accepted_at', 'started_at', 'ended_at',
-            'user_rating', 'user_review'
+            'user_rating', 'user_review',
+            'pandit_notes', 'recommended_remedies',
         ]
         read_only_fields = ['commission_amount', 'pandit_earnings', 'created_at', 'accepted_at', 'started_at', 'ended_at']
 
